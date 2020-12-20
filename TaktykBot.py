@@ -2,7 +2,7 @@ from typing import List
 from wykop import WykopAPI
 
 from ReminderRepository import ReminderRepository
-from model import Reminder
+from model import Reminder, entry_url
 
 
 def all_new(notifications):
@@ -58,5 +58,6 @@ class TaktykBot:
                 for nick in reminder.nicks:
                     # TODO aggregate messages to one user
                     print(f'send to {nick}')
-                    self.api.send_message(nick, f'nowy komentarz w <url>')  # TODO message with link
+                    # TODO navigate to first unread?
+                    self.api.send_message(nick, f'nowy komentarz w {entry_url}/{reminder.entry_id}')
                 self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
