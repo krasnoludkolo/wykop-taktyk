@@ -1,5 +1,4 @@
-from typing import Dict, List
-
+from typing import List
 from wykop import WykopAPI
 
 from ReminderRepository import ReminderRepository
@@ -45,8 +44,10 @@ class TaktykBot:
                 self.repo.add_nick_to_remainder(entry_id, nick)
                 saved_comments_count = self.repo.get_comment_count(entry_id)
                 self.repo.set_reminder_comment_count(entry_id, max(saved_comments_count, comments_count))
+                print(f'reminder update: {entry_id} {max(saved_comments_count, comments_count)}')
             else:
                 reminder = Reminder(nick, entry_id, comment_id, comments_count)
+                print(f'new reminder: {reminder}')
                 self.repo.save(reminder)
         self.api.notification_mark_all_as_read()
 
@@ -56,5 +57,6 @@ class TaktykBot:
             if reminder.comments_count < current_comments_count:
                 for nick in reminder.nicks:
                     # TODO aggregate messages to one user
+                    print(f'send to {nick}')
                     self.api.send_message(nick, f'nowy komentarz w <url>')  # TODO message with link
-                self.repo.set_reminder_comment_count(reminder.entry_id,current_comments_count)
+                self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
