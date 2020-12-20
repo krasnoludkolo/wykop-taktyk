@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from wykop import WykopAPI
 
@@ -18,7 +18,8 @@ class FakeWykopApi(WykopAPI):
     def __init__(self):
         super().__init__('appkey', 'secretkey')
         self.notifications: Dict[int, list] = {}
-        self.entries: Dict[int, object] = {}
+        self.entries: Dict[int, Dict[str, int]] = {}
+        self.sent_messages: Dict[str, List[str]] = {}
 
     def notifications_direct(self, page=1):
         if page not in self.notifications:
@@ -26,8 +27,9 @@ class FakeWykopApi(WykopAPI):
         return self.notifications[page]
 
     def notification_mark_all_as_read(self):
-        # TODO
-        pass
+        for key in self.notifications.keys():
+            for n in self.notifications[key]:
+                n['new'] = False
 
     def authenticate(self, account_key=None):
         pass
@@ -43,3 +45,14 @@ class FakeWykopApi(WykopAPI):
 
     def add_entry(self, item_id, comments_count):
         self.entries[item_id] = {'comments_count': comments_count}
+
+    def send_message(self, receiver: str, message: str):
+        if receiver not in self.sent_messages:
+            self.sent_messages[receiver] = []
+        self.sent_messages[receiver].append(message)
+
+    def set_entry_comments_count(self, item_id, comments_count):
+        self.entries[item_id]['comments_count'] = comments_count
+
+    def get_sent_messages(self) -> Dict[str, List[str]]:
+        return self.sent_messages
