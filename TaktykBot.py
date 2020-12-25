@@ -1,6 +1,8 @@
 from typing import List
 from wykop import WykopAPI
 
+import logging
+
 from ReminderRepository import ReminderRepository
 from model import Reminder, entry_url
 
@@ -44,10 +46,10 @@ class TaktykBot:
                 self.repo.add_nick_to_remainder(entry_id, nick)
                 saved_comments_count = self.repo.get_comment_count(entry_id)
                 self.repo.set_reminder_comment_count(entry_id, max(saved_comments_count, comments_count))
-                print(f'reminder update: {entry_id} {max(saved_comments_count, comments_count)}')
+                logging.info(f'reminder update: {entry_id} {max(saved_comments_count, comments_count)}')
             else:
                 reminder = Reminder(nick, entry_id, comment_id, comments_count)
-                print(f'new reminder: {reminder}')
+                logging.info(f'new reminder: {reminder}')
                 self.repo.save(reminder)
         self.api.notification_mark_all_as_read()
 
@@ -57,7 +59,7 @@ class TaktykBot:
             if reminder.comments_count < current_comments_count:
                 for nick in reminder.nicks:
                     # TODO aggregate messages to one user
-                    print(f'send to {nick}')
+                    logging.info(f'send to {nick}')
                     # TODO navigate to first unread?
                     self.api.send_message(nick, f'nowy komentarz w {entry_url}/{reminder.entry_id}')
                 self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
