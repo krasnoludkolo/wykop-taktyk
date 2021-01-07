@@ -29,7 +29,7 @@ def main() -> NoReturn:
 
     while True:
         main_loop(bot)
-        time.sleep(1)
+        time.sleep(15)
 
 
 def read_keys_from_file() -> Tuple[str, ...]:
