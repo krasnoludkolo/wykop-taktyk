@@ -11,17 +11,21 @@ KEYS_FILE_NAME = 'keys'
 
 
 def main_loop(bot: TaktykBot):
-    logging.debug('start main loop')
+    logging.info('start main loop')
     bot.save_new_reminders()
     bot.send_reminders()
-    logging.debug('end main loop')
+    logging.info('end main loop')
     time.sleep(1)
 
 
 def main() -> NoReturn:
     api = create_wykop_api()
     bot = TaktykBot(api, ShelveReminderRepository('test_db'))
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
     while True:
         main_loop(bot)
