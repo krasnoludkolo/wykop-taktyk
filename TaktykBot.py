@@ -54,7 +54,8 @@ class TaktykBot:
         self.api.notification_mark_all_as_read()
 
     def send_reminders(self):
-        for reminder in self.repo.get_all():
+        for reminder in self.repo.get_all(): # TODO not all but eg week max?
+            # TODO group by entry in order to perform one api call
             current_comments_count = self.api.entry(reminder.entry_id)['comments_count']
             if reminder.comments_count < current_comments_count:
                 for nick in reminder.nicks:
