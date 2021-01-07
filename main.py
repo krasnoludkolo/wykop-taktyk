@@ -15,7 +15,6 @@ def main_loop(bot: TaktykBot):
     bot.save_new_reminders()
     bot.send_reminders()
     logging.info('end main loop')
-    time.sleep(1)
 
 
 def main() -> NoReturn:
