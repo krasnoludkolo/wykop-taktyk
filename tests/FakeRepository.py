@@ -1,5 +1,5 @@
-from ReminderRepository import ReminderRepository
-from model import Reminder
+from taktyk.ReminderRepository import ReminderRepository
+from taktyk.model import Reminder
 
 
 class FakeRepository(ReminderRepository):

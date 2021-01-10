@@ -7,7 +7,7 @@ from wykop import WykopAPI, MultiKeyWykopAPI
 from ReminderRepository import ShelveReminderRepository
 from TaktykBot import TaktykBot
 
-KEYS_FILE_NAME = 'keys'
+KEYS_FILE_NAME = '../keys'
 
 
 def main_loop(bot: TaktykBot):
@@ -19,8 +19,9 @@ def main_loop(bot: TaktykBot):
 
 def main() -> NoReturn:
     api = create_wykop_api()
-    bot = TaktykBot(api, ShelveReminderRepository('test_db'))
+    bot = TaktykBot(api, ShelveReminderRepository('../test_db'))
     logging.basicConfig(
+        filename='../wykop-taktyk.log',
         level=logging.INFO,
         format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'

@@ -1,5 +1,5 @@
-from ReminderRepository import InMemoryReminderRepository
-from TaktykBot import TaktykBot
+from taktyk.ReminderRepository import InMemoryReminderRepository
+from taktyk.TaktykBot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
 
 
