@@ -1,8 +1,8 @@
 import os
 import time
 import logging
-from typing import NoReturn, Tuple
-from wykop import WykopAPI
+from typing import NoReturn, Tuple, List
+from wykop import WykopAPI, MultiKeyWykopAPI
 
 from ReminderRepository import ShelveReminderRepository
 from TaktykBot import TaktykBot
@@ -31,9 +31,9 @@ def main() -> NoReturn:
         time.sleep(15)
 
 
-def read_keys_from_file() -> Tuple[str, ...]:
+def read_keys_from_file() -> List[List[str]]:
     with open(KEYS_FILE_NAME) as f:
-        return tuple(f.readline().split())
+        return [line.split() for line in f.readlines()]
 
 
 def read_keys_from_envs() -> Tuple[str, str, str]:
@@ -45,10 +45,11 @@ def read_keys_from_envs() -> Tuple[str, str, str]:
 
 def create_wykop_api():
     if os.path.isfile(KEYS_FILE_NAME):
-        key, secret, account_key = read_keys_from_file()
+        keys = read_keys_from_file()
+        api = MultiKeyWykopAPI(keys)
     else:
         key, secret, account_key = read_keys_from_envs()
-    api = WykopAPI(key, secret, account_key=account_key)
+        api = WykopAPI(key, secret, account_key=account_key)
     api.authenticate()
     return api
 
