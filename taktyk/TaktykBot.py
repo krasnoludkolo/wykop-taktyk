@@ -42,6 +42,7 @@ class TaktykBot:
 
     def save_new_reminders(self):
         for nick, entry_id, comment_id, comments_count in self.new_reminders():
+            # TODO ignore if new entities are only @Taktyk-bot
             if self.repo.has_entry(entry_id):
                 # TODO check if nick already observe this entity
                 self.repo.add_nicks_to_remainder(entry_id, nick)
