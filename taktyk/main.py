@@ -6,8 +6,10 @@ from wykop import WykopAPI, MultiKeyWykopAPI
 
 from ReminderRepository import ShelveReminderRepository
 from TaktykBot import TaktykBot
+from argparse import ArgumentParser
 
-KEYS_FILE_NAME = '../keys'
+KEYS_FILE_NAME = 'keys'
+WYKOP_APP_KEY = 'aNd401dAPp'
 
 
 def main_loop(bot: TaktykBot):
@@ -18,7 +20,8 @@ def main_loop(bot: TaktykBot):
 
 
 def main() -> NoReturn:
-    api = create_wykop_api()
+    force_to_use_login_and_password_authentication = load_program_args(create_argument_parser())
+    api = create_wykop_api(force_to_use_login_and_password_authentication)
     bot = TaktykBot(api, ShelveReminderRepository('../test_db'))
     logging.basicConfig(
         filename='../wykop-taktyk.log',
@@ -32,26 +35,37 @@ def main() -> NoReturn:
         time.sleep(15)
 
 
+def create_argument_parser() -> ArgumentParser:
+    parser = ArgumentParser()
+    parser.add_argument("-l", default=False, dest='force_to_use_login_and_password_authentication', action='store_true',
+                        help="Force to use login and password authenticate")
+    return parser
+
+
+def load_program_args(parser: ArgumentParser) -> bool:
+    args = parser.parse_args()
+    return args.force_to_use_login_and_password_authentication
+
+
 def read_keys_from_file() -> List[List[str]]:
     with open(KEYS_FILE_NAME) as f:
         return [line.split() for line in f.readlines()]
 
 
-def read_keys_from_envs() -> Tuple[str, str, str]:
-    key = os.environ.get('WYKOP_TAKTYK_KEY')
-    secret = os.environ.get('WYKOP_TAKTYK_SECRET')
-    account_key = os.environ.get('WYKOP_TAKTYK_ACCOUNTKEY')
-    return key, secret, account_key
+def read_login_and_password() -> Tuple[str, str]:
+    login = os.environ.get('WYKOP_TAKTYK_BOT_LOGIN')
+    password = os.environ.get('WYKOP_TAKTYK_BOT_PASSWORD')
+    return login, password
 
 
-def create_wykop_api():
-    if os.path.isfile(KEYS_FILE_NAME):
+def create_wykop_api(force_to_use_login_and_password_authentication: bool) -> WykopAPI:
+    if os.path.isfile(KEYS_FILE_NAME) and not force_to_use_login_and_password_authentication:
         keys = read_keys_from_file()
         api = MultiKeyWykopAPI(keys)
     else:
-        key, secret, account_key = read_keys_from_envs()
-        api = WykopAPI(key, secret, account_key=account_key)
-    api.authenticate()
+        login, password = read_login_and_password()
+        api = WykopAPI(WYKOP_APP_KEY)
+        api.authenticate(login=login, password=password)
     return api
 
 
