@@ -3,6 +3,7 @@ from taktyk.TaktykBot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
 
 
+# Fix impost
 class TestTaktyk(object):
 
     def test_get_reminders_from_more_then_one_page(self):
