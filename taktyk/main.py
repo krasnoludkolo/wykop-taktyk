@@ -25,12 +25,12 @@ def main_loop(bot: TaktykBot):
 
 
 def main() -> NoReturn:
-    use_login_and_password = load_program_args(create_argument_parser())
+    use_login_and_password,log_into_console = load_program_args(create_argument_parser())
     api = create_wykop_api(use_login_and_password)
     bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_DIR))
     # TODO INFO -> console, DEBUG -> file
     logging.basicConfig(
-        # filename=LOG_FILE,
+        filename=LOG_FILE if not log_into_console else "",
         level=logging.INFO,
         format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
@@ -46,12 +46,14 @@ def create_argument_parser() -> ArgumentParser:
     parser = ArgumentParser()
     parser.add_argument("-l", default=False, dest='use_login_and_password', action='store_true',
                         help="Force to use login and password authenticate")
+    parser.add_argument("-c", default=False, dest='log_into_console', action='store_true',
+                        help="Log info into console instead of file")
     return parser
 
 
-def load_program_args(parser: ArgumentParser) -> bool:
+def load_program_args(parser: ArgumentParser) -> Tuple[bool,bool]:
     args = parser.parse_args()
-    return args.use_login_and_password
+    return args.use_login_and_password, args.log_into_console
 
 
 def read_keys_from_file() -> List[List[str]]:
