@@ -11,7 +11,9 @@ from argparse import ArgumentParser
 KEYS_FILE_NAME = 'keys'
 WYKOP_APP_KEY = 'aNd401dAPp'
 BASE_DIR = os.getcwd()
+# TODO move into ./log/ (create if not dir not exists)
 LOG_FILE = f'{BASE_DIR}/wykop-taktyk.log'
+# TODO move into ./db/ (create if not dir not exists)
 REPOSITORY_DIR = f'{BASE_DIR}/reminders.db'
 
 
@@ -28,7 +30,7 @@ def main() -> NoReturn:
     bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_DIR))
     # TODO INFO -> console, DEBUG -> file
     logging.basicConfig(
-        filename=LOG_FILE,
+        # filename=LOG_FILE,
         level=logging.INFO,
         format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
@@ -37,7 +39,7 @@ def main() -> NoReturn:
     while True:
         main_loop(bot)
         # TODO use program args
-        time.sleep(15)
+        time.sleep(1)
 
 
 def create_argument_parser() -> ArgumentParser:

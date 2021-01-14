@@ -3,8 +3,8 @@ from wykop import WykopAPI
 
 import logging
 
-from ReminderRepository import ReminderRepository
-from model import Reminder, entry_url
+from taktyk.ReminderRepository import ReminderRepository
+from taktyk.model import Reminder, entry_url
 
 
 def all_new(notifications):
@@ -43,7 +43,8 @@ class TaktykBot:
     def save_new_reminders(self):
         for nick, entry_id, comment_id, comments_count in self.new_reminders():
             if self.repo.has_entry(entry_id):
-                self.repo.add_nick_to_remainder(entry_id, nick)
+                # TODO check if nick already observe this entity
+                self.repo.add_nicks_to_remainder(entry_id, nick)
                 saved_comments_count = self.repo.get_comment_count(entry_id)
                 self.repo.set_reminder_comment_count(entry_id, max(saved_comments_count, comments_count))
                 logging.info(f'reminder update: {entry_id} {max(saved_comments_count, comments_count)}')

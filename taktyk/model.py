@@ -1,10 +1,10 @@
-from typing import List
+from typing import Set
 
 
 class Reminder:
 
-    def __init__(self, nicks: List[str], entry_id: str, comment_id: str, comments_count: int) -> None:
-        self.nicks: List[str] = nicks if isinstance(nicks, list) else [nicks]
+    def __init__(self, nicks: Set[str], entry_id: str, comment_id: str, comments_count: int) -> None:
+        self.nicks: Set[str] = nicks if isinstance(nicks, Set) else {nicks}
         self.entry_id: str = entry_id
         self.comment_id: str = comment_id
         self.comments_count: int = comments_count

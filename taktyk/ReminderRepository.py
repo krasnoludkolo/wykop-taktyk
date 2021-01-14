@@ -1,6 +1,6 @@
-from typing import NoReturn, List, Dict
+from typing import NoReturn, List, Dict, Set
 
-from model import Reminder
+from taktyk.model import Reminder
 import shelve
 
 
@@ -9,7 +9,7 @@ class ReminderRepository:
     def save(self, reminder: Reminder) -> NoReturn:
         pass
 
-    def add_nick_to_remainder(self, entry_id, nick):
+    def add_nicks_to_remainder(self, entry_id, nicks: Set[str]):
         pass
 
     def set_reminder_comment_count(self, entry_id, comment_count):
@@ -39,8 +39,8 @@ class InMemoryReminderRepository(ReminderRepository):
     def set_reminder_comment_count(self, entry_id, comment_count):
         self.reminders[entry_id].comments_count = comment_count
 
-    def add_nick_to_remainder(self, entry_id, nick):
-        self.reminders[entry_id].nicks.append(nick)
+    def add_nicks_to_remainder(self, entry_id, nick: Set[str]):
+        self.reminders[entry_id].nicks.update(nick)
 
     def has_entry(self, entry_id):
         return entry_id in self.reminders
@@ -66,9 +66,9 @@ class ShelveReminderRepository(ReminderRepository):
         with self.__file_db() as db:
             db[entry_id].comments_count = comment_count
 
-    def add_nick_to_remainder(self, entry_id, nick):
+    def add_nicks_to_remainder(self, entry_id, nicks: Set[str]):
         with self.__file_db() as db:
-            db[entry_id].nicks.append(nick)
+            db[entry_id].nicks.update(nicks)
 
     def has_entry(self, entry_id):
         with self.__file_db() as db:
