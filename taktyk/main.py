@@ -10,6 +10,9 @@ from argparse import ArgumentParser
 
 KEYS_FILE_NAME = 'keys'
 WYKOP_APP_KEY = 'aNd401dAPp'
+BASE_DIR = os.getcwd()
+LOG_FILE = f'{BASE_DIR}/wykop-taktyk.log'
+REPOSITORY_DIR = f'{BASE_DIR}/reminders.db'
 
 
 def main_loop(bot: TaktykBot):
@@ -20,11 +23,12 @@ def main_loop(bot: TaktykBot):
 
 
 def main() -> NoReturn:
-    force_to_use_login_and_password_authentication = load_program_args(create_argument_parser())
-    api = create_wykop_api(force_to_use_login_and_password_authentication)
-    bot = TaktykBot(api, ShelveReminderRepository('../test_db'))
+    use_login_and_password = load_program_args(create_argument_parser())
+    api = create_wykop_api(use_login_and_password)
+    bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_DIR))
+    # TODO INFO -> console, DEBUG -> file
     logging.basicConfig(
-        filename='../wykop-taktyk.log',
+        filename=LOG_FILE,
         level=logging.INFO,
         format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
@@ -32,19 +36,20 @@ def main() -> NoReturn:
 
     while True:
         main_loop(bot)
+        # TODO use program args
         time.sleep(15)
 
 
 def create_argument_parser() -> ArgumentParser:
     parser = ArgumentParser()
-    parser.add_argument("-l", default=False, dest='force_to_use_login_and_password_authentication', action='store_true',
+    parser.add_argument("-l", default=False, dest='use_login_and_password', action='store_true',
                         help="Force to use login and password authenticate")
     return parser
 
 
 def load_program_args(parser: ArgumentParser) -> bool:
     args = parser.parse_args()
-    return args.force_to_use_login_and_password_authentication
+    return args.use_login_and_password
 
 
 def read_keys_from_file() -> List[List[str]]:
@@ -58,8 +63,8 @@ def read_login_and_password() -> Tuple[str, str]:
     return login, password
 
 
-def create_wykop_api(force_to_use_login_and_password_authentication: bool) -> WykopAPI:
-    if os.path.isfile(KEYS_FILE_NAME) and not force_to_use_login_and_password_authentication:
+def create_wykop_api(use_login_and_password: bool) -> WykopAPI:
+    if os.path.isfile(KEYS_FILE_NAME) and not use_login_and_password:
         keys = read_keys_from_file()
         api = MultiKeyWykopAPI(keys)
     else:
