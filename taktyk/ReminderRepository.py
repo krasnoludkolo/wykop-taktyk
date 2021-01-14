@@ -1,6 +1,6 @@
 from typing import NoReturn, List, Dict, Set
 
-from taktyk.model import Reminder
+from model import Reminder
 import shelve
 
 
