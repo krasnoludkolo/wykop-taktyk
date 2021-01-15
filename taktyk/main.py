@@ -37,7 +37,10 @@ def main() -> NoReturn:
     )
 
     while True:
-        main_loop(bot)
+        try:
+            main_loop(bot)
+        except Exception as e:
+            logging.error(f'Error during main_loop: {e}')
         time.sleep(15)
 
 
