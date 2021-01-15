@@ -1,12 +1,15 @@
-import os
-import time
 import logging
+import os
+import signal
+import sys
+import time
+from argparse import ArgumentParser
 from typing import NoReturn, Tuple, List
+
 from wykop import WykopAPI, MultiKeyWykopAPI
 
 from ReminderRepository import ShelveReminderRepository
 from TaktykBot import TaktykBot
-from argparse import ArgumentParser
 
 KEYS_FILE_NAME = 'keys'
 WYKOP_APP_KEY = 'aNd401dAPp'
@@ -25,7 +28,7 @@ def main_loop(bot: TaktykBot):
 
 
 def main() -> NoReturn:
-    use_login_and_password,log_into_console = load_program_args(create_argument_parser())
+    use_login_and_password, log_into_console = load_program_args(create_argument_parser())
     api = create_wykop_api(use_login_and_password)
     bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_DIR))
     # TODO INFO -> console, DEBUG -> file
@@ -37,9 +40,10 @@ def main() -> NoReturn:
     )
 
     while True:
+        # TODO generic try when api fails
         main_loop(bot)
         # TODO use program args
-        time.sleep(1)
+        time.sleep(15)
 
 
 def create_argument_parser() -> ArgumentParser:
@@ -51,7 +55,7 @@ def create_argument_parser() -> ArgumentParser:
     return parser
 
 
-def load_program_args(parser: ArgumentParser) -> Tuple[bool,bool]:
+def load_program_args(parser: ArgumentParser) -> Tuple[bool, bool]:
     args = parser.parse_args()
     return args.use_login_and_password, args.log_into_console
 
@@ -78,4 +82,9 @@ def create_wykop_api(use_login_and_password: bool) -> WykopAPI:
     return api
 
 
+def signal_handler(sig, frame):
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, signal_handler)
 main()
