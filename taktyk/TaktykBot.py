@@ -42,9 +42,7 @@ class TaktykBot:
 
     def save_new_reminders(self):
         for nick, entry_id, comment_id, comments_count in self.new_reminders():
-            # TODO ignore if new entities are only @Taktyk-bot
             if self.repo.has_entry(entry_id):
-                # TODO check if nick already observe this entity
                 self.repo.add_nicks_to_remainder(entry_id, nick)
                 saved_comments_count = self.repo.get_comment_count(entry_id)
                 self.repo.set_reminder_comment_count(entry_id, max(saved_comments_count, comments_count))
@@ -56,13 +54,10 @@ class TaktykBot:
         self.api.notification_mark_all_as_read()
 
     def send_reminders(self):
-        for reminder in self.repo.get_all(): # TODO not all but eg week max?
-            # TODO group by entry in order to perform one api call
+        for reminder in self.repo.get_all():
             current_comments_count = self.api.entry(reminder.entry_id)['comments_count']
             if reminder.comments_count < current_comments_count:
                 for nick in reminder.nicks:
-                    # TODO aggregate messages to one user
                     logging.info(f'send to {nick}')
-                    # TODO navigate to first unread?
                     self.api.send_message(nick, f'nowy komentarz w {entry_url}/{reminder.entry_id}')
                 self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
