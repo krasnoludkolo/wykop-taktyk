@@ -1,5 +1,5 @@
 from typing import List
-from wykop import WykopAPI
+from wykop import WykopAPI, WykopAPIError
 
 import logging
 
@@ -59,5 +59,8 @@ class TaktykBot:
             if reminder.comments_count < current_comments_count:
                 for nick in reminder.nicks:
                     logging.info(f'send to {nick}')
-                    self.api.send_message(nick, f'nowy komentarz w {entry_url}/{reminder.entry_id}')
+                    try:
+                        self.api.message_send(nick, f'nowy komentarz w {entry_url}/{reminder.entry_id}')
+                    except WykopAPIError:
+                        logging.info(f'Error during sending message to {nick}')
                 self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
