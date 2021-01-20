@@ -18,7 +18,7 @@ class FakeWykopApi(WykopAPI):
     def __init__(self):
         super().__init__('appkey', 'secretkey')
         self.notifications: Dict[int, list] = {}
-        self.entries: Dict[int, Dict[str, int]] = {}
+        self.entries: Dict[int, Dict[str, _]] = {}
         self.sent_messages: Dict[str, List[str]] = {}
 
     def notifications_direct(self, page=1):
@@ -31,7 +31,7 @@ class FakeWykopApi(WykopAPI):
             for n in self.notifications[key]:
                 n['new'] = False
 
-    def authenticate(self, account_key=None):
+    def authenticate(self, account_key=None, login=None, password=None):
         pass
 
     def entry(self, entry_id):
@@ -53,6 +53,7 @@ class FakeWykopApi(WykopAPI):
 
     def set_entry_comments_count(self, item_id, comments_count):
         self.entries[item_id]['comments_count'] = comments_count
+        self.entries[item_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
 
     def get_sent_messages(self) -> Dict[str, List[str]]:
         return self.sent_messages

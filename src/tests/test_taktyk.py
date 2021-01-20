@@ -56,7 +56,7 @@ class TestTaktyk(object):
 
         assert len(api.get_sent_messages()[login]) == 1
 
-    def test_send_one_notification_about_new_comment_if_user_observe_twice_same_entity(self):
+    def test_send_one_message_about_new_comment_if_user_observe_twice_same_entity(self):
         entry_id = 'id-1'
         start_comments_count = 1
         login = 'login1'
@@ -64,9 +64,9 @@ class TestTaktyk(object):
         api = FakeWykopApi()
         bot = TaktykBot(api, repository)
 
+        api.add_entry(entry_id, start_comments_count)
         api.add_notification(login, entry_id, 'sub-id-1', 1)
         api.add_notification(login, entry_id, 'sub-id-2', 1)
-        api.add_entry(entry_id, start_comments_count)
         bot.save_new_reminders()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 2)

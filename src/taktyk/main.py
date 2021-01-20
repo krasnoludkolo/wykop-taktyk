@@ -8,8 +8,8 @@ from typing import NoReturn, Tuple, List
 
 from wykop import WykopAPI, MultiKeyWykopAPI
 
-from ReminderRepository import ShelveReminderRepository
-from TaktykBot import TaktykBot
+from taktyk.ReminderRepository import ShelveReminderRepository
+from taktyk.TaktykBot import TaktykBot
 
 KEYS_FILE_NAME = 'keys'
 WYKOP_APP_KEY = 'aNd401dAPp'

@@ -3,8 +3,8 @@ from wykop import WykopAPI, WykopAPIError
 
 import logging
 
-from ReminderRepository import ReminderRepository
-from model import Reminder, entry_url
+from taktyk.ReminderRepository import ReminderRepository
+from taktyk.model import Reminder, entry_url
 
 
 def all_new(notifications):
