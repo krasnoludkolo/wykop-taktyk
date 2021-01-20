@@ -4,7 +4,7 @@ from wykop import WykopAPI, WykopAPIError
 import logging
 
 from taktyk.reminder_repository import ReminderRepository
-from taktyk.model import Reminder, entry_url
+from taktyk.model import Reminder, ReminderCandidate, entry_url
 
 
 def all_new(notifications):
@@ -31,23 +31,23 @@ class TaktykBot:
         result += notifications
         return result
 
-    def new_reminders(self) -> List[Reminder]:
+    def new_reminders(self) -> List[ReminderCandidate]:
         result = []
         for n in self.__new_notifications():
             if n['new']:
                 entry = self.api.entry(n['item_id'])
                 login = n['author']['login']
                 comment_id = n['subitem_id']
-                reminder = Reminder({login: comment_id}, n['item_id'], comment_id, entry['comments_count'])
+                reminder = ReminderCandidate(login, n['item_id'], comment_id, entry['comments_count'])
                 result.append(reminder)
         return result
 
     def save_new_reminders(self):
-        for logins_with_last_seen_comment_id, entry_id, comment_id, comments_count in self.new_reminders():
+        for login, entry_id, comment_id, comments_count in self.new_reminders():
             if self.repo.has_entry(entry_id):
-                self.update_login_reminder(comments_count, entry_id, logins_with_last_seen_comment_id)
+                self.update_login_reminder(comments_count, entry_id, {login: comment_id})
             else:
-                self.save_new_reminder(comment_id, comments_count, entry_id, logins_with_last_seen_comment_id)
+                self.save_new_reminder(comment_id, comments_count, entry_id, {login: comment_id})
         self.api.notification_mark_all_as_read()
 
     def update_login_reminder(self, comments_count, entry_id, logins_with_last_seen_comment_id):
