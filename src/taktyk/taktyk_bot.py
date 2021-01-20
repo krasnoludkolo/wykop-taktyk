@@ -43,14 +43,14 @@ class TaktykBot:
         return result
 
     def save_new_reminders(self):
-        for nicks_with_last_seen_comment_id, entry_id, comment_id, comments_count in self.new_reminders():
+        for logins_with_last_seen_comment_id, entry_id, comment_id, comments_count in self.new_reminders():
             if self.repo.has_entry(entry_id):
-                self.repo.add_nick_to_remainder(entry_id, nicks_with_last_seen_comment_id)
+                self.repo.add_login_to_remainder(entry_id, logins_with_last_seen_comment_id)
                 saved_comments_count = self.repo.get_comment_count(entry_id)
                 self.repo.set_reminder_comment_count(entry_id, max(saved_comments_count, comments_count))
                 logging.info(f'reminder update: {entry_id} {max(saved_comments_count, comments_count)}')
             else:
-                reminder = Reminder(nicks_with_last_seen_comment_id, entry_id, comment_id, comments_count)
+                reminder = Reminder(logins_with_last_seen_comment_id, entry_id, comment_id, comments_count)
                 logging.info(f'new reminder: {reminder}')
                 self.repo.save(reminder)
         self.api.notification_mark_all_as_read()
@@ -61,12 +61,12 @@ class TaktykBot:
             current_comments_count = entry['comments_count']
             last_comment_id = entry['comments'][-1]['id']
             if reminder.comments_count < current_comments_count:
-                for nick, last_seen_comment_id in reminder.nicks_with_last_seen_comment_id.items():
-                    logging.info(f'send to {nick}')
+                for login, last_seen_comment_id in reminder.logins_with_last_seen_comment_id.items():
+                    logging.info(f'send to {login}')
                     try:
                         message = f'nowy komentarz {entry_url}/{reminder.entry_id}#comment-{last_seen_comment_id}'
-                        self.api.message_send(nick, message)
-                        self.repo.set_last_seen_id_for_nick(reminder.entry_id, nick, last_comment_id)
+                        self.api.message_send(login, message)
+                        self.repo.set_last_seen_id_for_login(reminder.entry_id, login, last_comment_id)
                     except WykopAPIError:
-                        logging.info(f'Error during sending message to {nick}')
+                        logging.info(f'Error during sending message to {login}')
                 self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)

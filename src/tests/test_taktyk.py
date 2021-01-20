@@ -34,7 +34,7 @@ class TestTaktyk(object):
         bot.save_new_reminders()
 
         assert len(repository.get_all()) == 1
-        assert len(repository.get_all()[0].nicks_with_last_seen_comment_id) == 2
+        assert len(repository.get_all()[0].logins_with_last_seen_comment_id) == 2
         assert repository.get_all()[0].comments_count == 2
 
     def test_send_one_notification_about_new_comment(self):

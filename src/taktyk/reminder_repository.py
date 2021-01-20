@@ -9,13 +9,13 @@ class ReminderRepository:
     def save(self, reminder: Reminder) -> NoReturn:
         pass
 
-    def add_nick_to_remainder(self, entry_id, nick_with_comment_id: Dict[str, str]):
+    def add_login_to_remainder(self, entry_id, login_with_comment_id: Dict[str, str]):
         pass
 
     def set_reminder_comment_count(self, entry_id, comment_count):
         pass
 
-    def set_last_seen_id_for_nick(self, entry_id, nick: str, last_seen_comment_id: str):
+    def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str):
         pass
 
     def get_comment_count(self, entry_id) -> int:
@@ -42,11 +42,11 @@ class InMemoryReminderRepository(ReminderRepository):
     def set_reminder_comment_count(self, entry_id, comment_count):
         self.reminders[entry_id].comments_count = comment_count
 
-    def add_nick_to_remainder(self, entry_id, nick_with_comment_id: Dict[str, str]):
-        self.reminders[entry_id].nicks_with_last_seen_comment_id.update(nick_with_comment_id)
+    def add_login_to_remainder(self, entry_id, login_with_comment_id: Dict[str, str]):
+        self.reminders[entry_id].logins_with_last_seen_comment_id.update(login_with_comment_id)
 
-    def set_last_seen_id_for_nick(self, entry_id, nick: str, last_seen_comment_id: str):
-        self.reminders[entry_id].nicks_with_last_seen_comment_id.update({nick: last_seen_comment_id})
+    def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str):
+        self.reminders[entry_id].logins_with_last_seen_comment_id.update({login: last_seen_comment_id})
 
     def has_entry(self, entry_id):
         return entry_id in self.reminders
@@ -72,13 +72,13 @@ class ShelveReminderRepository(ReminderRepository):
         with self.__file_db() as db:
             db[entry_id].comments_count = comment_count
 
-    def add_nick_to_remainder(self, entry_id, nick_with_comment_id: Dict[str, str]):
+    def add_login_to_remainder(self, entry_id, login_with_comment_id: Dict[str, str]):
         with self.__file_db() as db:
-            db[entry_id].nicks_with_last_seen_comment_id.update(nick_with_comment_id)
+            db[entry_id].logins_with_last_seen_comment_id.update(login_with_comment_id)
 
-    def set_last_seen_id_for_nick(self, entry_id, nick: str, last_seen_comment_id: str):
+    def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str):
         with self.__file_db() as db:
-            db[entry_id].nicks_with_last_seen_comment_id.update({nick: last_seen_comment_id})
+            db[entry_id].logins_with_last_seen_comment_id.update({login: last_seen_comment_id})
 
     def has_entry(self, entry_id):
         with self.__file_db() as db:
