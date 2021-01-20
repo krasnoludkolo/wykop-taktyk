@@ -34,7 +34,7 @@ class TestTaktyk(object):
         bot.save_new_reminders()
 
         assert len(repository.get_all()) == 1
-        assert len(repository.get_all()[0].nicks) == 2
+        assert len(repository.get_all()[0].nicks_with_last_seen_comment_id) == 2
         assert repository.get_all()[0].comments_count == 2
 
     def test_send_one_notification_about_new_comment(self):
@@ -82,13 +82,13 @@ class TestTaktyk(object):
         bot = TaktykBot(api, repository)
 
         api.add_entry(entry_id, start_comments_count)
-        api.add_notification(login, entry_id, 'sub-id-1', 1)
+        api.add_notification(login, entry_id, 'sub-id-0', 1)
         bot.save_new_reminders()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
         bot.send_reminders()
 
-        assert 'https://www.wykop.pl/wpis/id-1/#comment-sub-id-1' in api.get_sent_messages()[login][0]
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.get_sent_messages()[login][0]
 
     def test_send_second_message_with_link_to_last_read_comment(self):
         entry_id = 'id-1'
@@ -99,12 +99,38 @@ class TestTaktyk(object):
         bot = TaktykBot(api, repository)
 
         api.add_entry(entry_id, start_comments_count)
-        api.add_notification(login, entry_id, 'sub-id-1', 1)
+        api.add_notification(login, entry_id, 'sub-id-0', 1)
         bot.save_new_reminders()
         api.set_entry_comments_count(entry_id, start_comments_count + 1)
+
         bot.send_reminders()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
+        bot.save_new_reminders()
         bot.send_reminders()
 
-        assert 'https://www.wykop.pl/wpis/id-1/#comment-sub-id-3' in api.get_sent_messages()[login][-1]
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.get_sent_messages()[login][0]
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.get_sent_messages()[login][1]
+
+    def test_send_correct_comment_id_for_different_users(self):
+        entry_id = 'id-1'
+        start_comments_count = 1
+        login1 = 'login1'
+        login2 = 'login2'
+        repository = InMemoryReminderRepository()
+        api = FakeWykopApi()
+        bot = TaktykBot(api, repository)
+
+        api.add_entry(entry_id, start_comments_count)
+        api.add_notification(login1, entry_id, 'sub-id-0', 1)
+        api.add_notification(login2, entry_id, 'sub-id-1', 1)
+        api.set_entry_comments_count(entry_id, start_comments_count + 2)
+        bot.save_new_reminders()
+        bot.send_reminders()
+
+        api.set_entry_comments_count(entry_id, start_comments_count + 3)
+        bot.save_new_reminders()
+        bot.send_reminders()
+
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.get_sent_messages()[login1][-1]
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.get_sent_messages()[login2][-1]
