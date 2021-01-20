@@ -46,7 +46,7 @@ class FakeWykopApi(WykopAPI):
     def add_entry(self, item_id, comments_count):
         self.entries[item_id] = {'comments_count': comments_count}
 
-    def send_message(self, receiver: str, message: str):
+    def message_send(self, receiver: str, message: str):
         if receiver not in self.sent_messages:
             self.sent_messages[receiver] = []
         self.sent_messages[receiver].append(message)

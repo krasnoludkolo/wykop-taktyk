@@ -1,4 +1,4 @@
-from taktyk.ReminderRepository import ReminderRepository
+from taktyk.reminder_repository import ReminderRepository
 from taktyk.model import Reminder
 
 
