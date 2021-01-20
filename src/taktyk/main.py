@@ -30,7 +30,7 @@ def main() -> NoReturn:
     api = create_wykop_api(use_login_and_password)
     bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_DIR))
     logging.basicConfig(
-        # filename=LOG_FILE if not log_into_console else "",
+        filename=LOG_FILE if not log_into_console else "",
         level=logging.INFO,
         format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
