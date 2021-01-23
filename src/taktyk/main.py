@@ -14,8 +14,7 @@ from taktyk.taktyk_bot import TaktykBot
 
 def main_loop(bot: TaktykBot):
     logging.info('start main loop')
-    bot.save_new_reminders()
-    bot.send_reminders()
+    bot.run()
     logging.info('end main loop')
 
 

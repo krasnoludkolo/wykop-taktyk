@@ -22,6 +22,10 @@ class TaktykBot:
         self.api: WykopAPI = api
         self.repo: ReminderRepository = repo
 
+    def run(self):
+        self.save_new_reminders()
+        self.send_reminders()
+
     def __new_notifications(self, page=1) -> List:
         api = self.api
         notifications = [x for x in api.notifications_direct(page) if x['type'] == 'entry_comment_directed']
@@ -31,7 +35,7 @@ class TaktykBot:
         result += notifications
         return result
 
-    def new_reminders(self) -> List[ReminderCandidate]:
+    def __new_reminders(self) -> List[ReminderCandidate]:
         result = []
         for n in self.__new_notifications():
             if n['new']:
@@ -43,42 +47,42 @@ class TaktykBot:
         return result
 
     def save_new_reminders(self):
-        for login, entry_id, comment_id, comments_count in self.new_reminders():
+        for login, entry_id, comment_id, comments_count in self.__new_reminders():
             if self.repo.has_entry(entry_id):
-                self.update_login_reminder(comments_count, entry_id, {login: comment_id})
+                self.__update_login_reminder(comments_count, entry_id, {login: comment_id})
             else:
-                self.save_new_reminder(comment_id, comments_count, entry_id, {login: comment_id})
+                self.__save_new_reminder(comment_id, comments_count, entry_id, {login: comment_id})
         self.api.notification_mark_all_as_read()
 
-    def update_login_reminder(self, comments_count, entry_id, logins_with_last_seen_comment_id):
+    def __update_login_reminder(self, comments_count, entry_id, logins_with_last_seen_comment_id):
         self.repo.add_login_to_remainder(entry_id, logins_with_last_seen_comment_id)
         saved_comments_count = self.repo.get_comment_count(entry_id)
         self.repo.set_reminder_comment_count(entry_id, max(saved_comments_count, comments_count))
         logging.info(f'reminder update: {entry_id} {max(saved_comments_count, comments_count)}')
 
-    def save_new_reminder(self, comment_id, comments_count, entry_id, logins_with_last_seen_comment_id):
+    def __save_new_reminder(self, comment_id, comments_count, entry_id, logins_with_last_seen_comment_id):
         reminder = Reminder(logins_with_last_seen_comment_id, entry_id, comment_id, comments_count)
         logging.info(f'new reminder: {reminder}')
         self.repo.save(reminder)
 
     def send_reminders(self):
         for reminder in self.repo.get_all():
-            current_comments_count, last_comment_id = self.get_entry_comments_info(reminder)
+            current_comments_count, last_comment_id = self.__get_entry_comments_info(reminder)
             if reminder.comments_count < current_comments_count:
-                self.send_message_to_all_logins(current_comments_count, last_comment_id, reminder)
+                self.__send_message_to_all_logins(current_comments_count, last_comment_id, reminder)
 
-    def get_entry_comments_info(self, reminder):
+    def __get_entry_comments_info(self, reminder):
         entry = self.api.entry(reminder.entry_id)
         current_comments_count = entry['comments_count']
         last_comment_id = entry['comments'][-1]['id']
         return current_comments_count, last_comment_id
 
-    def send_message_to_all_logins(self, current_comments_count, last_comment_id, reminder):
+    def __send_message_to_all_logins(self, current_comments_count, last_comment_id, reminder):
         for login, last_seen_comment_id in reminder.logins_with_last_seen_comment_id.items():
-            self.send_message_to_login(last_comment_id, last_seen_comment_id, login, reminder)
+            self.__send_message_to_login(last_comment_id, last_seen_comment_id, login, reminder)
         self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
 
-    def send_message_to_login(self, last_comment_id, last_seen_comment_id, login, reminder):
+    def __send_message_to_login(self, last_comment_id, last_seen_comment_id, login, reminder):
         logging.info(f'send to {login}')
         try:
             message = f'nowy komentarz {entry_url}/{reminder.entry_id}#comment-{last_seen_comment_id}'
