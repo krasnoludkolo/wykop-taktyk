@@ -1,0 +1,2 @@
+class TestTaktykReceiveMessages(object):
+    pass
