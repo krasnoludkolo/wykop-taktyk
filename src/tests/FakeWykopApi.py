@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from wykop import WykopAPI
 
@@ -10,8 +10,9 @@ class FakeWykopApi(WykopAPI):
     def __init__(self):
         super().__init__('appkey', 'secretkey')
         self.notifications: Dict[int, list] = {}
-        self.entries: Dict[int, Dict[str, _]] = {}
+        self.entries: Dict[int, Dict[str, Any]] = {}
         self.conversations: Dict[str, List[Dict[str, str]]] = {}
+        self.conversations_summary: Dict[str, Dict[str, Any]] = {}
 
     def notifications_direct(self, page=1):
         if page not in self.notifications:
@@ -37,18 +38,21 @@ class FakeWykopApi(WykopAPI):
 
     def add_entry(self, item_id, comments_count):
         self.entries[item_id] = {'comments_count': comments_count}
+        self.entries[item_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
 
     def message_send(self, receiver: str, message: str):
         if receiver not in self.conversations:
             self.conversations[receiver] = []
+        if receiver not in self.conversations_summary:
+            self.conversations_summary[receiver] = {'receiver': {'login': receiver}}
         self.conversations[receiver].append(message_sent(message))
 
     def set_entry_comments_count(self, item_id, comments_count):
         self.entries[item_id]['comments_count'] = comments_count
         self.entries[item_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
 
-    def conversations_list(self) -> Dict[str, List[Dict[str, str]]]:
-        return self.conversations
+    def conversations_list(self) -> List[Dict[str, str]]:
+        return list(self.conversations_summary.values())
 
     def conversation(self, receiver: str):
         return self.conversations[receiver]
@@ -56,4 +60,6 @@ class FakeWykopApi(WykopAPI):
     def receive_message(self, sender: str, message: str):
         if sender not in self.conversations:
             self.conversations[sender] = []
+        if sender not in self.conversations_summary:
+            self.conversations_summary[sender] = {'receiver': {'login': sender}}
         self.conversations[sender].append(message_received(message))

@@ -24,7 +24,13 @@ class ReminderRepository:
     def get_all(self) -> List[Reminder]:
         pass
 
-    def has_entry(self, entry_id):
+    def has_entry(self, entry_id) -> bool:
+        pass
+
+    def remove_login_from_reminder(self, entry_id, login):
+        pass
+
+    def has_reminder_with_login(self, entry_id, login):
         pass
 
 
@@ -53,6 +59,14 @@ class InMemoryReminderRepository(ReminderRepository):
 
     def get_comment_count(self, entry_id) -> int:
         return self.reminders[entry_id].comments_count
+
+    def remove_login_from_reminder(self, entry_id, login):
+        self.reminders[entry_id].logins_with_last_seen_comment_id.pop(login)
+
+    def has_reminder_with_login(self, entry_id, login):
+        if not self.has_entry(entry_id):
+            return False
+        return login in self.reminders[entry_id].logins_with_last_seen_comment_id.keys()
 
 
 class ShelveReminderRepository(ReminderRepository):
@@ -87,6 +101,16 @@ class ShelveReminderRepository(ReminderRepository):
     def get_comment_count(self, entry_id) -> int:
         with self.__file_db() as db:
             return db[entry_id].comments_count
+
+    def remove_login_from_reminder(self, entry_id, login):
+        with self.__file_db() as db:
+            db[entry_id].logins_with_last_seen_comment_id.pop(login)
+
+    def has_reminder_with_login(self, entry_id, login):
+        with self.__file_db() as db:
+            if entry_id not in db:
+                return False
+            return login in db[entry_id].logins_with_last_seen_comment_id.keys()
 
     def __file_db(self):
         return shelve.open(self.filename, writeback=True)
