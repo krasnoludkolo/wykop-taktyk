@@ -57,3 +57,4 @@ class FakeWykopApi(WykopAPI):
 
     def get_sent_messages(self) -> Dict[str, List[str]]:
         return self.sent_messages
+
