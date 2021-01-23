@@ -77,7 +77,7 @@ class TestTaktykReceiveMessages(object):
         api.receive_message(login, f'1000')
         bot.run()
 
-        assert len(api.conversation(login)) == USER_MESSAGE
+        assert len(api.conversation(login)) == USER_MESSAGE + NOTHING_TO_REMOVE_MESSAGE
         for message in messages_with(api, login):
             assert 'nowy komentarz' not in message
 
@@ -115,3 +115,4 @@ def default_test_context():
 
 USER_MESSAGE = 1
 REMOVED_SUMMARY_MESSAGE = 1
+NOTHING_TO_REMOVE_MESSAGE = 1
