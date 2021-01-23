@@ -2,15 +2,7 @@ from typing import Dict, List
 
 from wykop import WykopAPI
 
-
-def notification(login: str, item_id, subitem_id):
-    return {
-        'author': {'login': login},
-        'item_id': item_id,
-        'subitem_id': subitem_id,
-        'new': True,
-        'type': 'entry_comment_directed'
-    }
+from tests.wykop_api_test_utils import notification, message_sent, message_received
 
 
 class FakeWykopApi(WykopAPI):
@@ -19,7 +11,7 @@ class FakeWykopApi(WykopAPI):
         super().__init__('appkey', 'secretkey')
         self.notifications: Dict[int, list] = {}
         self.entries: Dict[int, Dict[str, _]] = {}
-        self.sent_messages: Dict[str, List[str]] = {}
+        self.conversations: Dict[str, List[Dict[str, str]]] = {}
 
     def notifications_direct(self, page=1):
         if page not in self.notifications:
@@ -47,14 +39,21 @@ class FakeWykopApi(WykopAPI):
         self.entries[item_id] = {'comments_count': comments_count}
 
     def message_send(self, receiver: str, message: str):
-        if receiver not in self.sent_messages:
-            self.sent_messages[receiver] = []
-        self.sent_messages[receiver].append(message)
+        if receiver not in self.conversations:
+            self.conversations[receiver] = []
+        self.conversations[receiver].append(message_sent(message))
 
     def set_entry_comments_count(self, item_id, comments_count):
         self.entries[item_id]['comments_count'] = comments_count
         self.entries[item_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
 
-    def get_sent_messages(self) -> Dict[str, List[str]]:
-        return self.sent_messages
+    def conversations_list(self) -> Dict[str, List[Dict[str, str]]]:
+        return self.conversations
 
+    def conversation(self, receiver: str):
+        return self.conversations[receiver]
+
+    def receive_message(self, sender: str, message: str):
+        if sender not in self.conversations:
+            self.conversations[sender] = []
+        self.conversations[sender].append(message_received(message))

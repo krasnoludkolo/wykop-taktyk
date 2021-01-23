@@ -21,7 +21,7 @@ class TestTaktykSendMessages(object):
         bot.send_reminders()
         bot.send_reminders()
 
-        assert len(api.get_sent_messages()[login]) == 1
+        assert len(api.conversation(login)) == 1
 
     def test_send_one_message_about_new_comment_if_user_observe_twice_same_entity(self):
         entry_id = 'id-1'
@@ -39,7 +39,7 @@ class TestTaktykSendMessages(object):
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
         bot.send_reminders()
 
-        assert len(api.get_sent_messages()[login]) == 1
+        assert len(api.conversation(login)) == 1
 
     def test_send_message_with_link_to_last_read_comment(self):
         entry_id = 'id-1'
@@ -56,7 +56,7 @@ class TestTaktykSendMessages(object):
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
         bot.send_reminders()
 
-        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.get_sent_messages()[login][0]
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.conversation(login)[0]['body']
 
     def test_send_second_message_with_link_to_last_read_comment(self):
         entry_id = 'id-1'
@@ -77,8 +77,8 @@ class TestTaktykSendMessages(object):
         bot.save_new_reminders()
         bot.send_reminders()
 
-        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.get_sent_messages()[login][0]
-        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.get_sent_messages()[login][1]
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.conversation(login)[0]['body']
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.conversation(login)[1]['body']
 
     def test_send_correct_comment_id_for_different_users(self):
         entry_id = 'id-1'
@@ -100,5 +100,5 @@ class TestTaktykSendMessages(object):
         bot.save_new_reminders()
         bot.send_reminders()
 
-        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.get_sent_messages()[login1][-1]
-        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.get_sent_messages()[login2][-1]
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.conversation(login1)[-1]['body']
+        assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.conversation(login2)[-1]['body']
