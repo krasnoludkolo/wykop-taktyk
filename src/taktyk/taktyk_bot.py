@@ -1,19 +1,11 @@
 from typing import List
 from wykop import WykopAPI, WykopAPIError
-
+import re
 import logging
 
 from taktyk.reminder_repository import ReminderRepository
 from taktyk.model import Reminder, ReminderCandidate, entry_url
-
-
-def all_new(notifications):
-    if len(notifications) == 0:
-        return False
-    for notification in notifications:
-        if not notification['new']:
-            return False
-    return True
+from taktyk.wykop_api_utils import *
 
 
 class TaktykBot:
@@ -21,9 +13,11 @@ class TaktykBot:
     def __init__(self, api: WykopAPI, repo: ReminderRepository):
         self.api: WykopAPI = api
         self.repo: ReminderRepository = repo
+        self.url_entity_id_pattern = re.compile('wpis\/\d+')
 
     def run(self):
         self.save_new_reminders()
+        self.remove_reminders_from_messages()
         self.send_reminders()
 
     def __new_notifications(self, page=1) -> List:
@@ -90,3 +84,29 @@ class TaktykBot:
             self.repo.set_last_seen_id_for_login(reminder.entry_id, login, last_comment_id)
         except WykopAPIError:
             logging.info(f'Error during sending message to {login}')
+
+    def remove_reminders_from_messages(self):
+        for conversation_summary in self.api.conversations_list():
+            login = get_login_from_conversation_summary(conversation_summary)
+            conversation = self.api.conversation(login)
+            if is_last_message_received(conversation):
+                messages = take_last_received_messages(conversation)
+                entity_ids_from_removed_reminders = []
+                for message in take_messages_body(messages):
+                    entry_id = self.__take_entry_id_from_message(message)
+                    if self.repo.has_reminder_with_login(entry_id,login):
+                        logging.info(f'Removing {login} from {entry_id}')
+                        self.repo.remove_login_from_reminder(entry_id, login)
+                        entity_ids_from_removed_reminders.append(entry_id)
+                if entity_ids_from_removed_reminders:
+                    self.api.message_send(login, f'Usunięto: {"".join(entity_ids_from_removed_reminders)}')
+                else:
+                    self.api.message_send(login, 'Nic do usunięcia')
+
+        pass
+
+    def __take_entry_id_from_message(self, message: str) -> str:
+        if message.isdigit():
+            return message
+        else:
+            return str(self.url_entity_id_pattern.findall(message)[0]).split('/')[1]
