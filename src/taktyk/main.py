@@ -1,5 +1,4 @@
 import logging
-import os
 import signal
 import sys
 import time
@@ -8,14 +7,9 @@ from typing import NoReturn, Tuple, List
 
 from wykop import WykopAPI, MultiKeyWykopAPI
 
+from taktyk.config import *
 from taktyk.reminder_repository import ShelveReminderRepository
 from taktyk.taktyk_bot import TaktykBot
-
-KEYS_FILE_NAME = 'keys'
-WYKOP_APP_KEY = 'aNd401dAPp'
-BASE_DIR = os.getcwd()
-LOG_FILE = f'{BASE_DIR}/wykop-taktyk.log'
-REPOSITORY_DIR = f'{BASE_DIR}/reminders.db'
 
 
 def main_loop(bot: TaktykBot):
@@ -25,10 +19,18 @@ def main_loop(bot: TaktykBot):
     logging.info('end main loop')
 
 
+def create_dirs():
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
+    if not os.path.isdir(REPOSITORY_DIR):
+        os.mkdir(REPOSITORY_DIR)
+
+
 def main() -> NoReturn:
+    create_dirs()
     use_login_and_password, log_into_console, interval = load_program_args(create_argument_parser())
     api = create_wykop_api(use_login_and_password)
-    bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_DIR))
+    bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_FILE))
     logging.basicConfig(
         filename=LOG_FILE if not log_into_console else "",
         level=logging.INFO,
