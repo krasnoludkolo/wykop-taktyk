@@ -29,7 +29,7 @@ class TestTaktykReceiveMessages(object):
         user_request_observation(api, entry_id, login)
         bot.run()
 
-        api.receive_message(login, f'https://www.wykop.pl/wpis/{entry_id}#comment-195807281')
+        user_send_message(api, login, f'https://www.wykop.pl/wpis/{entry_id}#comment-195807281')
         new_comments_to_entity_are_added(api, entry_id, start_comments_count + 1)
         bot.run()
 
@@ -44,7 +44,7 @@ class TestTaktykReceiveMessages(object):
         user_request_observation(api, entry_id, login)
         bot.run()
 
-        api.receive_message(login, f'{entry_id}')
+        user_send_message(api, login, f'{entry_id}')
         new_comments_to_entity_are_added(api, entry_id, start_comments_count + 1)
         bot.run()
 
@@ -61,8 +61,8 @@ class TestTaktykReceiveMessages(object):
         user_request_observation(api, entry_id2, login)
         bot.run()
 
-        api.receive_message(login, f'{entry_id1}')
-        api.receive_message(login, f'{entry_id2}')
+        user_send_message(api, login, f'{entry_id1}')
+        user_send_message(api, login, f'{entry_id2}')
         new_comments_to_entity_are_added(api, entry_id1, start_comments_count + 1)
         new_comments_to_entity_are_added(api, entry_id2, start_comments_count + 1)
         bot.run()
@@ -74,7 +74,7 @@ class TestTaktykReceiveMessages(object):
     def test_should_ignore_removing_non_existing_observation(self):
         api, bot, login, start_comments_count = default_test_context()
 
-        api.receive_message(login, f'1000')
+        user_send_message(api, login, f'1000')
         bot.run()
 
         assert len(api.conversation(login)) == USER_MESSAGE + NOTHING_TO_REMOVE_MESSAGE
