@@ -1,13 +1,14 @@
 from typing import Dict, List, Any
 
 from wykop import WykopAPI
+from wykop.api.exceptions import EntryDoesNotExistError
 
 class FakeWykopApi(WykopAPI):
 
     def __init__(self):
         super().__init__('appkey', 'secretkey')
         self.notifications: Dict[int, list] = {}
-        self.entries: Dict[int, Dict[str, Any]] = {}
+        self.entries: Dict[str, Dict[str, Any]] = {}
         self.conversations: Dict[str, List[Dict[str, str]]] = {}
         self.conversations_summary: Dict[str, Dict[str, Any]] = {}
 
@@ -27,6 +28,8 @@ class FakeWykopApi(WykopAPI):
     def entry(self, entry_id):
         if entry_id in self.entries:
             return self.entries[entry_id]
+        else:
+            raise EntryDoesNotExistError
 
     def add_notification(self, login: str, item_id, subitem_id, page):
         if page not in self.notifications:
@@ -60,6 +63,9 @@ class FakeWykopApi(WykopAPI):
         if sender not in self.conversations_summary:
             self.conversations_summary[sender] = {'receiver': {'login': sender}}
         self.conversations[sender].append(message_received(message))
+
+    def entry_delete(self, entry_id: str):
+        self.entries.pop(entry_id)
 
 
 def notification(login: str, item_id, subitem_id):

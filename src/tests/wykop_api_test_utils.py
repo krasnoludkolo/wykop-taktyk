@@ -1,6 +1,8 @@
 from random import randint
 from typing import Tuple
 
+from wykop import WykopAPI
+
 from taktyk.reminder_repository import InMemoryReminderRepository, ReminderRepository
 from taktyk.taktyk_bot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
@@ -10,6 +12,10 @@ def new_entry_is_added(api, start_comments_count) -> str:
     entry_id = str(randint(100000, 900000))
     api.add_entry(entry_id, start_comments_count)
     return entry_id
+
+
+def entry_is_removed(api: WykopAPI, entry_id) -> str:
+    api.entry_delete(entry_id)
 
 
 def user_request_observation(api, entry_id, login):

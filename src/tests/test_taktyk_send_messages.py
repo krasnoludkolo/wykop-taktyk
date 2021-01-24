@@ -1,6 +1,7 @@
 from taktyk.reminder_repository import InMemoryReminderRepository
 from taktyk.taktyk_bot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
+from tests.wykop_api_test_utils import *
 
 
 class TestTaktykSendMessages(object):
@@ -98,3 +99,14 @@ class TestTaktykSendMessages(object):
 
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.conversation(login1)[-1]['body']
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.conversation(login2)[-1]['body']
+
+    def test_should_ignore_removed_entry(self):
+        api, bot, login, _, start_comment_count = default_test_context()
+
+        entry_id = new_entry_is_added(api, start_comment_count)
+        user_request_observation(api, entry_id, login)
+        bot.run()
+
+        entry_is_removed(api, entry_id)
+        bot.run()
+
