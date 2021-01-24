@@ -52,7 +52,7 @@ def is_received_message(message: ConversationMessage):
     return message['direction'] == 'received'
 
 
-def take_last_received_messages(conversation: Conversation) -> List[ConversationMessage]:
+def take_new_messages(conversation: Conversation) -> List[ConversationMessage]:
     conversation.reverse()
     return list(takewhile(is_received_message, conversation))
 
