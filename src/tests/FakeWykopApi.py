@@ -2,9 +2,6 @@ from typing import Dict, List, Any
 
 from wykop import WykopAPI
 
-from tests.wykop_api_test_utils import notification, message_sent, message_received
-
-
 class FakeWykopApi(WykopAPI):
 
     def __init__(self):
@@ -63,3 +60,27 @@ class FakeWykopApi(WykopAPI):
         if sender not in self.conversations_summary:
             self.conversations_summary[sender] = {'receiver': {'login': sender}}
         self.conversations[sender].append(message_received(message))
+
+
+def notification(login: str, item_id, subitem_id):
+    return {
+        'author': {'login': login},
+        'item_id': item_id,
+        'subitem_id': subitem_id,
+        'new': True,
+        'type': 'entry_comment_directed'
+    }
+
+
+def message_sent(body: str) -> Dict[str, str]:
+    return {
+        'body': body,
+        'direction': 'sended'
+    }
+
+
+def message_received(body: str) -> Dict[str, str]:
+    return {
+        'body': body,
+        'direction': 'received'
+    }

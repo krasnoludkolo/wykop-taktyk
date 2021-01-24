@@ -1,21 +1,41 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from itertools import takewhile
 
 ConversationMessage = Dict[str, Any]
 ConversationSummary = Dict[str, Any]
 Conversation = List[ConversationMessage]
 Notification = Dict[str, Any]
+Entry = Dict[str, Any]
 ConversationsList = List[ConversationSummary]
 Notifications = List[Notification]
 
 
-def all_new(notifications: Notifications):
+def all_new(notifications: Notifications) -> bool:
     if len(notifications) == 0:
         return False
     for notification in notifications:
-        if not notification['new']:
+        if not is_notification_new(notification):
             return False
     return True
+
+
+def is_notification_new(notification: Notification) -> bool:
+    return notification['new']
+
+
+def is_notification_comment_directed(notification: Notification) -> bool:
+    return notification['type'] == 'entry_comment_directed'
+
+
+def reminder_data_from_notification(n: Notification) -> Tuple[str, str, str]:
+    login = n['author']['login']
+    comment_id = n['subitem_id']
+    entry_id = n['item_id']
+    return entry_id, login, comment_id
+
+
+def comment_count_from_entry(entry: Entry) -> int:
+    return entry['comments_count']
 
 
 def is_last_message_received(conversation: Conversation) -> bool:

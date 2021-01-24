@@ -15,15 +15,14 @@ class TestTaktykSendMessages(object):
 
         api.add_notification(login, entry_id, 'sub-id-1', 1)
         api.add_entry(entry_id, start_comments_count)
-        bot.save_new_reminders()
+        bot.run()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 1)
-        bot.send_reminders()
-        bot.send_reminders()
+        bot.run()
 
         assert len(api.conversation(login)) == 1
 
-    def test_send_one_message_about_new_comment_if_user_observe_twice_same_entity(self):
+    def test_send_one_message_about_new_comment_if_user_observe_twice_same_entry(self):
         entry_id = 'id-1'
         start_comments_count = 1
         login = 'login1'
@@ -34,10 +33,10 @@ class TestTaktykSendMessages(object):
         api.add_entry(entry_id, start_comments_count)
         api.add_notification(login, entry_id, 'sub-id-1', 1)
         api.add_notification(login, entry_id, 'sub-id-2', 1)
-        bot.save_new_reminders()
+        bot.run()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
-        bot.send_reminders()
+        bot.run()
 
         assert len(api.conversation(login)) == 1
 
@@ -51,10 +50,10 @@ class TestTaktykSendMessages(object):
 
         api.add_entry(entry_id, start_comments_count)
         api.add_notification(login, entry_id, 'sub-id-0', 1)
-        bot.save_new_reminders()
+        bot.run()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
-        bot.send_reminders()
+        bot.run()
 
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.conversation(login)[0]['body']
 
@@ -68,14 +67,13 @@ class TestTaktykSendMessages(object):
 
         api.add_entry(entry_id, start_comments_count)
         api.add_notification(login, entry_id, 'sub-id-0', 1)
-        bot.save_new_reminders()
+        bot.run()
         api.set_entry_comments_count(entry_id, start_comments_count + 1)
 
-        bot.send_reminders()
+        bot.run()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
-        bot.save_new_reminders()
-        bot.send_reminders()
+        bot.run()
 
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.conversation(login)[0]['body']
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.conversation(login)[1]['body']
@@ -93,12 +91,10 @@ class TestTaktykSendMessages(object):
         api.add_notification(login1, entry_id, 'sub-id-0', 1)
         api.add_notification(login2, entry_id, 'sub-id-1', 1)
         api.set_entry_comments_count(entry_id, start_comments_count + 2)
-        bot.save_new_reminders()
-        bot.send_reminders()
+        bot.run()
 
         api.set_entry_comments_count(entry_id, start_comments_count + 3)
-        bot.save_new_reminders()
-        bot.send_reminders()
+        bot.run()
 
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-0' in api.conversation(login1)[-1]['body']
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.conversation(login2)[-1]['body']
