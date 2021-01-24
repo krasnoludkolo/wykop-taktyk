@@ -9,6 +9,7 @@ Entry = Dict[str, Any]
 ConversationsList = List[ConversationSummary]
 Notifications = List[Notification]
 
+entry_url = 'https://www.wykop.pl/wpis'
 
 def all_new(notifications: Notifications) -> bool:
     if len(notifications) == 0:

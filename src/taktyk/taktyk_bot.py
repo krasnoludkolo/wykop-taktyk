@@ -1,9 +1,9 @@
 import logging
 import re
 
-from wykop import WykopAPI, WykopAPIError
+from wykop import WykopAPI
 
-from taktyk.model import entry_url
+from taktyk.message_sender import MessageSender
 from taktyk.reminder_repository import ReminderRepository
 from taktyk.saver import ReminderSaver
 from taktyk.wykop_api_utils import *
@@ -16,6 +16,7 @@ class TaktykBot:
         self.repo: ReminderRepository = repo
         self.url_entry_id_pattern = re.compile('wpis\/\d+')
         self.reminder_saver = ReminderSaver(api, repo)
+        self.message_sender = MessageSender(api)
 
     def run(self):
         self.reminder_saver.save_new_reminders()
@@ -36,17 +37,9 @@ class TaktykBot:
 
     def __send_message_to_all_logins(self, current_comments_count, last_comment_id, reminder):
         for login, last_seen_comment_id in reminder.logins_with_last_seen_comment_id.items():
-            self.__send_message_to_login(last_comment_id, last_seen_comment_id, login, reminder)
-        self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
-
-    def __send_message_to_login(self, last_comment_id, last_seen_comment_id, login, reminder):
-        logging.info(f'send to {login}')
-        try:
-            message = f'nowy komentarz {entry_url}/{reminder.entry_id}#comment-{last_seen_comment_id}'
-            self.api.message_send(login, message)
+            self.message_sender.send_reminder_to_login(last_seen_comment_id, login, reminder)
             self.repo.set_last_seen_id_for_login(reminder.entry_id, login, last_comment_id)
-        except WykopAPIError:
-            logging.info(f'Error during sending message to {login}')
+        self.repo.set_reminder_comment_count(reminder.entry_id, current_comments_count)
 
     def remove_reminders_from_messages(self):
         for conversation_summary in self.api.conversations_list():
@@ -62,9 +55,9 @@ class TaktykBot:
                         self.repo.remove_login_from_reminder(entry_id, login)
                         entry_ids_from_removed_reminders.append(entry_id)
                 if entry_ids_from_removed_reminders:
-                    self.api.message_send(login, f'Usunięto: {"".join(entry_ids_from_removed_reminders)}')
+                    self.message_sender.send_removed_reminder_message(login, entry_ids_from_removed_reminders)
                 else:
-                    self.api.message_send(login, 'Nic do usunięcia')
+                    self.message_sender.send_no_reminder_to_remove_message(login)
 
         pass
 

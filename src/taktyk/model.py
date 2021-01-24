@@ -39,4 +39,4 @@ class ReminderCandidate:
         return f'Reminder({self.login}, {self.entry_id}, {self.comment_id}, {self.comments_count})'
 
 
-entry_url = 'https://www.wykop.pl/wpis'
+
