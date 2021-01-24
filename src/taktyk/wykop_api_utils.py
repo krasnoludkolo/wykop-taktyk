@@ -39,6 +39,10 @@ def comment_count_from_entry(entry: Entry) -> int:
     return entry['comments_count']
 
 
+def last_comment_id_from_entry(entry: Entry) -> str:
+    return entry['comments'][-1]['id']
+
+
 def is_last_message_received(conversation: Conversation) -> bool:
     last_message = conversation[-1]
     return is_received_message(last_message)
