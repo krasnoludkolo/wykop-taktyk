@@ -21,7 +21,7 @@ class TestTaktyk(object):
         bot = TaktykBot(api, repository)
         bot.run()
 
-        assert len(repository.get_all()) == 4
+        assert len(repository.reminders) == 4
 
     def test_get_reminders_from_more_then_one_user_to_one_entry(self):
         repository = InMemoryReminderRepository()
@@ -34,9 +34,9 @@ class TestTaktyk(object):
         bot = TaktykBot(api, repository)
         bot.run()
 
-        assert len(repository.get_all()) == 1
-        assert len(repository.get_all()[0].logins_with_last_seen_comment_id) == 2
-        assert repository.get_all()[0].comments_count == 2
+        assert len(repository.reminders) == 1
+        assert len(list(repository.reminders.values())[0].logins_with_last_seen_comment_id) == 2
+        assert list(repository.reminders.values())[0].comments_count == 2
 
     def test_should_not_take_read_notification_again(self):
         api, bot, login, repository, start_comments_count = default_test_context()
@@ -47,4 +47,4 @@ class TestTaktyk(object):
         bot.run()
         bot.run()
 
-        assert len(repository.get_all()) == 1
+        assert len(list(repository.reminders.values())) == 1

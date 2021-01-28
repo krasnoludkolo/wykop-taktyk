@@ -1,3 +1,5 @@
+import logging
+
 from wykop import WykopAPI
 from wykop.api.exceptions import EntryDoesNotExistError
 
@@ -19,12 +21,13 @@ class RemindersSender:
         self.message_sender = message_sender
 
     def send_reminders(self):
-        for reminder in self.repo.get_all():
+        for reminder in self.repo.get_all_actives():
             entry_id = reminder.entry_id
-            # TODO https://github.com/krasnoludkolo/wykop-taktyk/issues/26
             try:
                 entry = self.api.entry(entry_id)
             except EntryDoesNotExistError:
+                logging.info(f'Entry with id: {entry_id} no longer exists. Marking reminder as inactive')
+                self.repo.mark_as_inactive(entry_id)
                 continue
             current_comments_count, last_comment_id = get_entry_comments_info(entry)
             if reminder.comments_count < current_comments_count:

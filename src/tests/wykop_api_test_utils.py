@@ -34,7 +34,7 @@ def messages_with(api, login):
     return [m['body'] for m in api.conversation(login)]
 
 
-def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, ReminderRepository, int]:
+def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryReminderRepository, int]:
     start_comments_count = 1
     login = 'login1'
     repository = InMemoryReminderRepository()

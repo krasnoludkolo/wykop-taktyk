@@ -1,3 +1,4 @@
+import logging
 from typing import NoReturn, List, Dict, Set
 
 from taktyk.model import Reminder
@@ -21,7 +22,7 @@ class ReminderRepository:
     def get_comment_count(self, entry_id) -> int:
         pass
 
-    def get_all(self) -> List[Reminder]:
+    def get_all_actives(self) -> List[Reminder]:
         pass
 
     def has_entry(self, entry_id) -> bool:
@@ -33,6 +34,9 @@ class ReminderRepository:
     def has_reminder_with_login(self, entry_id, login):
         pass
 
+    def mark_as_inactive(self, entry_id):
+        pass
+
 
 class InMemoryReminderRepository(ReminderRepository):
 
@@ -42,8 +46,8 @@ class InMemoryReminderRepository(ReminderRepository):
     def save(self, reminder: Reminder) -> NoReturn:
         self.reminders[reminder.entry_id] = reminder
 
-    def get_all(self) -> List[Reminder]:
-        return list(self.reminders.values())
+    def get_all_actives(self) -> List[Reminder]:
+        return list([reminder for reminder in self.reminders.values() if reminder.active])
 
     def set_reminder_comment_count(self, entry_id, comment_count):
         self.reminders[entry_id].comments_count = comment_count
@@ -68,6 +72,12 @@ class InMemoryReminderRepository(ReminderRepository):
             return False
         return login in self.reminders[entry_id].logins_with_last_seen_comment_id.keys()
 
+    def mark_as_inactive(self, entry_id):
+        if self.has_entry(entry_id):
+            self.reminders[entry_id].active = False
+        else:
+            logging.error(f'Try to mark as inactive non-existing reminder. Entry id: {entry_id}')
+
 
 class ShelveReminderRepository(ReminderRepository):
 
@@ -78,9 +88,9 @@ class ShelveReminderRepository(ReminderRepository):
         with self.__file_db() as db:
             db[reminder.entry_id] = reminder
 
-    def get_all(self) -> List[Reminder]:
+    def get_all_actives(self) -> List[Reminder]:
         with self.__file_db() as db:
-            return list(db.values())
+            return list([reminder for reminder in db.values() if reminder.active])
 
     def set_reminder_comment_count(self, entry_id, comment_count):
         with self.__file_db() as db:
@@ -111,6 +121,13 @@ class ShelveReminderRepository(ReminderRepository):
             if entry_id not in db:
                 return False
             return login in db[entry_id].logins_with_last_seen_comment_id.keys()
+
+    def mark_as_inactive(self, entry_id):
+        with self.__file_db() as db:
+            if entry_id in db:
+                db[entry_id].active = False
+            else:
+                logging.error(f'Try to mark as inactive non-existing reminder. Entry id: {entry_id}')
 
     def __file_db(self):
         return shelve.open(self.filename, writeback=True)
