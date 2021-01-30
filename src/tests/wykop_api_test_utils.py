@@ -8,7 +8,7 @@ from taktyk.taktyk_bot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
 
 
-def new_entry_is_added(api, start_comments_count) -> str:
+def new_entry_is_added(api, start_comments_count=0) -> str:
     entry_id = str(randint(100000, 900000))
     api.add_entry(entry_id, start_comments_count)
     return entry_id
@@ -27,21 +27,20 @@ def user_send_message(api, login, message):
     api.receive_message(login, message)
 
 
-def new_comments_to_entry_are_added(api, entry_id, number_of_all_comments):
-    api.set_entry_comments_count(entry_id, number_of_all_comments)
+def new_comments_to_entry_are_added(api: FakeWykopApi, entry_id, author='test_login'):
+    api.add_comment_to_entry(entry_id, author)
 
 
 def messages_with(api, login):
     return [m['body'] for m in api.conversation(login)]
 
 
-def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryObservationRepository, int]:
-    start_comments_count = 1
+def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryObservationRepository]:
     login = 'login1'
     repository = InMemoryObservationRepository()
     api = FakeWykopApi()
     bot = TaktykBot(api, repository)
-    return api, bot, login, repository, start_comments_count
+    return api, bot, login, repository
 
 
 USER_MESSAGE = 1
