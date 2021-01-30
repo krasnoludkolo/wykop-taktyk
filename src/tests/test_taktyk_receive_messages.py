@@ -1,8 +1,3 @@
-from random import randint
-
-from taktyk.reminder_repository import InMemoryReminderRepository
-from taktyk.taktyk_bot import TaktykBot
-from tests.FakeWykopApi import FakeWykopApi
 from tests.wykop_api_test_utils import *
 
 

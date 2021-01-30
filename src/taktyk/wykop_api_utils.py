@@ -1,5 +1,5 @@
-from typing import List, Dict, Any, Tuple
 from itertools import takewhile
+from typing import List, Dict, Any, Tuple
 
 ConversationMessage = Dict[str, Any]
 ConversationSummary = Dict[str, Any]
@@ -28,7 +28,7 @@ def is_notification_comment_directed(notification: Notification) -> bool:
     return notification['type'] == 'entry_comment_directed'
 
 
-def reminder_data_from_notification(n: Notification) -> Tuple[str, str, str]:
+def observation_data_from_notification(n: Notification) -> Tuple[str, str, str]:
     login = n['author']['login']
     comment_id = n['subitem_id']
     entry_id = n['item_id']

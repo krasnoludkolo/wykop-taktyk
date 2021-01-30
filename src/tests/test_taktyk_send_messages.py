@@ -1,6 +1,3 @@
-from taktyk.reminder_repository import InMemoryReminderRepository
-from taktyk.taktyk_bot import TaktykBot
-from tests.FakeWykopApi import FakeWykopApi
 from tests.wykop_api_test_utils import *
 
 
@@ -10,7 +7,7 @@ class TestTaktykSendMessages(object):
         entry_id = 'id-1'
         start_comments_count = 1
         login = 'login1'
-        repository = InMemoryReminderRepository()
+        repository = InMemoryObservationRepository()
         api = FakeWykopApi()
         bot = TaktykBot(api, repository)
 
@@ -27,7 +24,7 @@ class TestTaktykSendMessages(object):
         entry_id = 'id-1'
         start_comments_count = 1
         login = 'login1'
-        repository = InMemoryReminderRepository()
+        repository = InMemoryObservationRepository()
         api = FakeWykopApi()
         bot = TaktykBot(api, repository)
 
@@ -45,7 +42,7 @@ class TestTaktykSendMessages(object):
         entry_id = 'id-1'
         start_comments_count = 1
         login = 'login1'
-        repository = InMemoryReminderRepository()
+        repository = InMemoryObservationRepository()
         api = FakeWykopApi()
         bot = TaktykBot(api, repository)
 
@@ -62,7 +59,7 @@ class TestTaktykSendMessages(object):
         entry_id = 'id-1'
         start_comments_count = 1
         login = 'login1'
-        repository = InMemoryReminderRepository()
+        repository = InMemoryObservationRepository()
         api = FakeWykopApi()
         bot = TaktykBot(api, repository)
 
@@ -84,7 +81,7 @@ class TestTaktykSendMessages(object):
         start_comments_count = 1
         login1 = 'login1'
         login2 = 'login2'
-        repository = InMemoryReminderRepository()
+        repository = InMemoryObservationRepository()
         api = FakeWykopApi()
         bot = TaktykBot(api, repository)
 
