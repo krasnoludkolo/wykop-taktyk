@@ -3,6 +3,7 @@ from typing import Dict, List, Any
 from wykop import WykopAPI
 from wykop.api.exceptions import EntryDoesNotExistError
 
+
 class FakeWykopApi(WykopAPI):
 
     def __init__(self):
@@ -47,9 +48,14 @@ class FakeWykopApi(WykopAPI):
             self.conversations_summary[receiver] = {'receiver': {'login': receiver}}
         self.conversations[receiver].append(message_sent(message))
 
-    def set_entry_comments_count(self, item_id, comments_count):
-        self.entries[item_id]['comments_count'] = comments_count
-        self.entries[item_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
+    def set_entry_comments_count(self, entry_id, comments_count):
+        self.entries[entry_id]['comments_count'] = comments_count
+        self.entries[entry_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
+
+    def add_comment_to_entry(self, entry_id):
+        comments_count = self.entries[entry_id]['comments_count']
+        self.entries[entry_id]['comments_count'] = comments_count + 1
+        self.entries[entry_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
 
     def conversations_list(self) -> List[Dict[str, str]]:
         return list(self.conversations_summary.values())

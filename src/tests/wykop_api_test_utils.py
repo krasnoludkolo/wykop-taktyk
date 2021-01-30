@@ -14,12 +14,13 @@ def new_entry_is_added(api, start_comments_count) -> str:
     return entry_id
 
 
-def entry_is_removed(api: WykopAPI, entry_id) -> str:
+def entry_is_removed(api: WykopAPI, entry_id):
     api.entry_delete(entry_id)
 
 
-def user_request_observation(api, entry_id, login):
-    api.add_notification(login, entry_id, 'sub-id-1', 1)
+def user_request_observation(api: FakeWykopApi, entry_id, login, page=1):
+    api.add_comment_to_entry(entry_id)
+    api.add_notification(login, entry_id, 'sub-id-1', page)
 
 
 def user_send_message(api, login, message):
@@ -46,3 +47,4 @@ def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryObserv
 USER_MESSAGE = 1
 REMOVED_SUMMARY_MESSAGE = 1
 NOTHING_TO_REMOVE_MESSAGE = 1
+USER_OBSERVATION_REQUEST = 1
