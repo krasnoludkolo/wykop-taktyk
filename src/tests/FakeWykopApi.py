@@ -52,10 +52,10 @@ class FakeWykopApi(WykopAPI):
         self.entries[entry_id]['comments_count'] = comments_count
         self.entries[entry_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
 
-    def add_comment_to_entry(self, entry_id):
+    def add_comment_to_entry(self, entry_id: str, author: str = 'test_login'):
         comments_count = self.entries[entry_id]['comments_count']
         self.entries[entry_id]['comments_count'] = comments_count + 1
-        self.entries[entry_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
+        self.entries[entry_id]['comments'].append({'id': f'sub-id-{comments_count}'})
 
     def conversations_list(self) -> List[Dict[str, str]]:
         return list(self.conversations_summary.values())

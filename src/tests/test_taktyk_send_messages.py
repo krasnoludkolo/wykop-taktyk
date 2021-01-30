@@ -98,9 +98,9 @@ class TestTaktykSendMessages(object):
         assert 'https://www.wykop.pl/wpis/id-1#comment-sub-id-1' in api.conversation(login2)[-1]['body']
 
     def test_should_ignore_removed_entry(self):
-        api, bot, login, _, start_comment_count = default_test_context()
+        api, bot, login, _ = default_test_context()
 
-        entry_id = new_entry_is_added(api, start_comment_count)
+        entry_id = new_entry_is_added(api)
         user_request_observation(api, entry_id, login)
         bot.run()
 
