@@ -4,44 +4,42 @@ from tests.wykop_api_test_utils import *
 class TestTaktyk(object):
 
     def test_get_observations_from_more_then_one_page(self):
-        repository = InMemoryObservationRepository()
-        api = FakeWykopApi()
-        api.add_notification('login1', 'id-1', 'sub-id-1', 1)
-        api.add_notification('login3', 'id-2', 'sub-id-1', 1)
-        api.add_notification('login4', 'id-3', 'sub-id-1', 2)
-        api.add_notification('login5', 'id-4', 'sub-id-1', 2)
-        api.add_entry('id-1', 1)
-        api.add_entry('id-2', 1)
-        api.add_entry('id-3', 1)
-        api.add_entry('id-4', 1)
+        api, bot, login, repository, start_comments_count = default_test_context()
 
-        bot = TaktykBot(api, repository)
+        id_1 = new_entry_is_added(api, start_comments_count)
+        id_2 = new_entry_is_added(api, start_comments_count)
+        id_3 = new_entry_is_added(api, start_comments_count)
+        id_4 = new_entry_is_added(api, start_comments_count)
+        user_request_observation(api, id_1, login, page=1)
+        user_request_observation(api, id_2, login, page=1)
+        user_request_observation(api, id_3, login, page=2)
+        user_request_observation(api, id_4, login, page=2)
+
         bot.run()
 
         assert len(repository.observations) == 4
 
     def test_get_observations_from_more_then_one_user_to_one_entry(self):
-        repository = InMemoryObservationRepository()
-        api = FakeWykopApi()
-        entry_id = 'id-1'
-        api.add_notification('login1', entry_id, 'sub-id-1', 1)
-        api.add_notification('login3', entry_id, 'sub-id-1', 1)
-        api.add_entry(entry_id, 2)
+        api, bot, login, repository, start_comments_count = default_test_context()
 
-        bot = TaktykBot(api, repository)
+        entry_id = new_entry_is_added(api, start_comments_count)
+        user_request_observation(api, entry_id, 'login1')
+        user_request_observation(api, entry_id, 'login2')
+
         bot.run()
 
-        assert len(repository.observations) == 1
-        assert len(list(repository.observations.values())[0].logins_with_last_seen_comment_id) == 2
-        assert list(repository.observations.values())[0].comments_count == 2
+        assert len(repository.get_all_actives()) == 1
+        observation = list(repository.get_all_actives())[0]
+        assert len(observation.logins_with_last_seen_comment_id) == 2
+        assert observation.comments_count == start_comments_count + 2 * USER_OBSERVATION_REQUEST
 
     def test_should_not_take_read_notification_again(self):
         api, bot, login, repository, start_comments_count = default_test_context()
 
         entry_id = new_entry_is_added(api, start_comments_count)
-        api.add_notification('login1', entry_id, 'sub-id-1', 1)
+        user_request_observation(api, entry_id, 'login1')
 
         bot.run()
         bot.run()
 
-        assert len(list(repository.observations.values())) == 1
+        assert len(list(repository.get_all_actives())) == 1
