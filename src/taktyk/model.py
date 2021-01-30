@@ -5,7 +5,7 @@ from taktyk.python_utils import auto_str, auto_repr
 
 @auto_str
 @auto_repr
-class Reminder:
+class Observation:
 
     def __init__(self, logins_with_last_seen_comment_id: Dict[str, str], entry_id: str, comment_id: str,
                  comments_count: int) -> None:
@@ -22,7 +22,7 @@ class Reminder:
 
 @auto_str
 @auto_repr
-class ReminderCandidate:
+class ObservationCandidate:
 
     def __init__(self, login: str, entry_id: str, comment_id: str, comments_count: int) -> None:
         self.comment_id: str = comment_id

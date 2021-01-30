@@ -3,7 +3,7 @@ from typing import Tuple
 
 from wykop import WykopAPI
 
-from taktyk.reminder_repository import InMemoryReminderRepository, ReminderRepository
+from taktyk.observation_repository import InMemoryObservationRepository
 from taktyk.taktyk_bot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
 
@@ -34,10 +34,10 @@ def messages_with(api, login):
     return [m['body'] for m in api.conversation(login)]
 
 
-def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryReminderRepository, int]:
+def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryObservationRepository, int]:
     start_comments_count = 1
     login = 'login1'
-    repository = InMemoryReminderRepository()
+    repository = InMemoryObservationRepository()
     api = FakeWykopApi()
     bot = TaktykBot(api, repository)
     return api, bot, login, repository, start_comments_count

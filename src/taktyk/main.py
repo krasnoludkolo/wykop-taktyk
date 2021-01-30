@@ -8,7 +8,7 @@ from typing import NoReturn, Tuple, List
 from wykop import WykopAPI, MultiKeyWykopAPI
 
 from taktyk.config import *
-from taktyk.reminder_repository import ShelveReminderRepository
+from taktyk.observation_repository import ShelveObservationRepository
 from taktyk.taktyk_bot import TaktykBot
 
 
@@ -29,7 +29,7 @@ def main() -> NoReturn:
     create_dirs()
     use_login_and_password, log_into_console, interval = load_program_args(create_argument_parser())
     api = create_wykop_api(use_login_and_password)
-    bot = TaktykBot(api, ShelveReminderRepository(REPOSITORY_FILE))
+    bot = TaktykBot(api, ShelveObservationRepository(REPOSITORY_FILE))
     logging.basicConfig(
         filename=LOG_FILE if not log_into_console else "",
         level=logging.INFO,
