@@ -11,6 +11,7 @@ Notifications = List[Notification]
 
 entry_url = 'https://www.wykop.pl/wpis'
 
+
 def all_new(notifications: Notifications) -> bool:
     if len(notifications) == 0:
         return False
@@ -41,6 +42,10 @@ def comment_count_from_entry(entry: Entry) -> int:
 
 def last_comment_id_from_entry(entry: Entry) -> str:
     return entry['comments'][-1]['id']
+
+
+def last_author_login_from_entry(entry: Entry) -> str:
+    return entry['comments'][-1]['author']['login']
 
 
 def is_last_message_received(conversation: Conversation) -> bool:

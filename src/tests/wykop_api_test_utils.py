@@ -18,21 +18,26 @@ def entry_is_removed(api: WykopAPI, entry_id):
     api.entry_delete(entry_id)
 
 
-def user_request_observation(api: FakeWykopApi, entry_id, login, page=1):
-    api.add_comment_to_entry(entry_id)
-    api.add_notification(login, entry_id, 'sub-id-1', page)
+def user_request_observation(api: FakeWykopApi, entry_id, login, page=1) -> str:
+    comment_id = api.add_comment_to_entry(entry_id)
+    api.add_notification(login, entry_id, comment_id, page)
+    return comment_id
 
 
 def user_send_message(api, login, message):
     api.receive_message(login, message)
 
 
-def new_comments_to_entry_are_added(api: FakeWykopApi, entry_id, author='test_login'):
-    api.add_comment_to_entry(entry_id, author)
+def new_comments_to_entry_are_added(api: FakeWykopApi, entry_id, author='test_login') -> str:
+    return api.add_comment_to_entry(entry_id, author)
 
 
 def messages_with(api, login):
     return [m['body'] for m in api.conversation(login)]
+
+
+def messages_in_conversation(api, login):
+    return len(api.conversation(login))
 
 
 def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryObservationRepository]:
@@ -43,7 +48,9 @@ def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryObserv
     return api, bot, login, repository
 
 
+NO_MESSAGE = 0
 USER_MESSAGE = 1
 REMOVED_SUMMARY_MESSAGE = 1
 NOTHING_TO_REMOVE_MESSAGE = 1
+OBSERVATION_MESSAGE = 1
 USER_OBSERVATION_REQUEST = 1
