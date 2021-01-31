@@ -3,6 +3,8 @@ from typing import Dict, List, Any
 from wykop import WykopAPI
 from wykop.api.exceptions import EntryDoesNotExistError
 
+from taktyk.wykop_api_utils import Conversation
+
 
 class FakeWykopApi(WykopAPI):
 
@@ -52,16 +54,20 @@ class FakeWykopApi(WykopAPI):
         self.entries[entry_id]['comments_count'] = comments_count
         self.entries[entry_id]['comments'] = [{'id': f'sub-id-{x}'} for x in range(0, comments_count)]
 
-    def add_comment_to_entry(self, entry_id: str, author: str = 'test_login'):
+    def add_comment_to_entry(self, entry_id: str, author: str = 'test_login') -> str:
         comments_count = self.entries[entry_id]['comments_count']
+        comment_id = f'sub-id-{comments_count}'
         self.entries[entry_id]['comments_count'] = comments_count + 1
-        self.entries[entry_id]['comments'].append({'id': f'sub-id-{comments_count}'})
+        self.entries[entry_id]['comments'].append({'id': comment_id, 'author': {'login': author}})
+        return str(comment_id)
 
     def conversations_list(self) -> List[Dict[str, str]]:
         return list(self.conversations_summary.values())
 
-    def conversation(self, receiver: str):
-        return self.conversations[receiver]
+    def conversation(self, receiver: str) -> Conversation:
+        if receiver in self.conversations:
+            return self.conversations[receiver]
+        return []
 
     def receive_message(self, sender: str, message: str):
         if sender not in self.conversations:
