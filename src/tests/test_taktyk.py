@@ -43,3 +43,20 @@ class TestTaktyk(object):
         bot.run()
 
         assert len(list(repository.get_all_actives())) == 1
+        assert len(list(repository.get_all_actives()[0].logins_with_last_seen_comment_id)) == 1
+
+    def test_should_not_send_message_if_last_message_is_from_observer(self):
+        api, bot, login, repository = default_test_context()
+        different_user = 'different_user'
+
+        entry_id = new_entry_is_added(api)
+        user_request_observation(api, entry_id, login)
+        user_request_observation(api, entry_id, different_user)
+        bot.run()
+
+        new_comments_to_entry_are_added(api, entry_id, different_user)
+        new_comments_to_entry_are_added(api, entry_id, login)
+        bot.run()
+
+        assert messages_in_conversation(api, login) == NO_MESSAGE
+        assert messages_in_conversation(api, different_user) == OBSERVATION_MESSAGE
