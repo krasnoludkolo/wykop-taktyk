@@ -41,7 +41,7 @@ def comment_count_from_entry(entry: Entry) -> int:
 
 
 def body_from_comment_with_id(entry: Entry, comment_id) -> str:
-    return next((c['body'] for c in entry['comments'] if c['id'] == comment_id))
+    return next((c['body'] for c in entry['comments'] if str(c['id']) == comment_id))
 
 
 def last_comment_id_from_entry(entry: Entry) -> str:
