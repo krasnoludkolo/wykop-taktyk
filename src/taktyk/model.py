@@ -15,7 +15,7 @@ class LoginObservation:
 
     def __init__(self, login: str, last_seen_comment_id: str, observation_mode: ObservationMode) -> None:
         self.login: str = login
-        self.last_seen_comment_id: str = last_seen_comment_id
+        self.last_seen_comment_id: str = str(last_seen_comment_id)
         self.observation_mode: ObservationMode = observation_mode
 
 
@@ -46,10 +46,10 @@ class ObservationCandidate:
 
     def __init__(self, login: str, entry_id: str, comment_id: str, comments_count: int,
                  observation_mode: ObservationMode = ObservationMode.ALL) -> None:
-        self.comment_id: str = comment_id
         self.login: str = login
-        self.entry_id: str = entry_id
-        self.comment_id: str = comment_id
+        self.comment_id: str = str(comment_id)
+        self.entry_id: str = str(entry_id)
+        self.comment_id: str = str(comment_id)
         self.comments_count: int = comments_count
         self.observation_mode: ObservationMode = observation_mode
 

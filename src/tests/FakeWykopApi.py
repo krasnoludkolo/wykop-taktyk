@@ -11,7 +11,7 @@ class FakeWykopApi(WykopAPI):
     def __init__(self):
         super().__init__('appkey', 'secretkey')
         self.notifications: Dict[int, list] = {}
-        self.entries: Dict[str, Dict[str, Any]] = {}
+        self.entries: Dict[int, Dict[str, Any]] = {}
         self.conversations: Dict[str, List[Dict[str, str]]] = {}
         self.conversations_summary: Dict[str, Dict[str, Any]] = {}
 
@@ -29,6 +29,7 @@ class FakeWykopApi(WykopAPI):
         pass
 
     def entry(self, entry_id):
+        entry_id = int(entry_id)
         if entry_id in self.entries:
             return self.entries[entry_id]
         else:
@@ -51,12 +52,12 @@ class FakeWykopApi(WykopAPI):
             self.conversations_summary[receiver] = new_conversation_summary(receiver)
         self.conversations[receiver].append(message_sent(message))
 
-    def add_comment_to_entry(self, entry_id: str, author: str = 'test_login', body='@taktyk-bot .') -> str:
+    def add_comment_to_entry(self, entry_id: str, author: str = 'test_login', body='@taktyk-bot .') -> int:
         comments_count = self.entries[entry_id]['comments_count']
-        comment_id = f'sub-id-{comments_count}'
+        comment_id = int(comments_count)
         self.entries[entry_id]['comments_count'] = comments_count + 1
         self.entries[entry_id]['comments'].append(new_comment(author, comment_id, body))
-        return str(comment_id)
+        return comment_id
 
     def conversations_list(self) -> List[Dict[str, str]]:
         return list(self.conversations_summary.values())
