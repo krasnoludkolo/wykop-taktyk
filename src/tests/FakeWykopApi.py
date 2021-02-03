@@ -51,11 +51,11 @@ class FakeWykopApi(WykopAPI):
             self.conversations_summary[receiver] = new_conversation_summary(receiver)
         self.conversations[receiver].append(message_sent(message))
 
-    def add_comment_to_entry(self, entry_id: str, author: str = 'test_login') -> str:
+    def add_comment_to_entry(self, entry_id: str, author: str = 'test_login', body='@taktyk-bot .') -> str:
         comments_count = self.entries[entry_id]['comments_count']
         comment_id = f'sub-id-{comments_count}'
         self.entries[entry_id]['comments_count'] = comments_count + 1
-        self.entries[entry_id]['comments'].append(new_comment(author, comment_id))
+        self.entries[entry_id]['comments'].append(new_comment(author, comment_id, body))
         return str(comment_id)
 
     def conversations_list(self) -> List[Dict[str, str]]:
@@ -97,8 +97,14 @@ def new_entity(author: str) -> Dict[str, Any]:
     }
 
 
-def new_comment(author, comment_id):
-    return {'id': comment_id, 'author': {'login': author}}
+def new_comment(author, comment_id, body):
+    return {
+        'id': comment_id,
+        'body': body,
+        'author': {
+            'login': author
+        }
+    }
 
 
 def new_conversation_summary(sender):
