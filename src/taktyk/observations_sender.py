@@ -78,7 +78,7 @@ def should_send_message_with_op_observation_mode(entry_info, login_observation):
     if not op_comment_ids:
         return False
     last_op_comment_id = max(op_comment_ids)
-    return comment_id < last_op_comment_id
+    return str(comment_id) < str(last_op_comment_id)
 
 
 def get_op_comment_ids(entry_info):
