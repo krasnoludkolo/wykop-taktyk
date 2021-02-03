@@ -8,9 +8,9 @@ from taktyk.taktyk_bot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
 
 
-def new_entry_is_added(api, start_comments_count=0) -> str:
+def new_entry_is_added(api, start_comments_count=0, author='test_login') -> str:
     entry_id = str(randint(100000, 900000))
-    api.add_entry(entry_id, start_comments_count)
+    api.add_entry(entry_id, start_comments_count, author)
     return entry_id
 
 
