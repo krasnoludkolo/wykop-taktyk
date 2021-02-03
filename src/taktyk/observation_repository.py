@@ -10,13 +10,13 @@ class ObservationRepository:
     def save(self, observation: Observation) -> NoReturn:
         pass
 
-    def add_login_to_observation(self, entry_id, login_with_comment_id: Dict[str, str]):
+    def add_login_to_observation(self, entry_id, login_with_comment_id: Dict[str, str]) -> NoReturn:
         pass
 
-    def set_observation_comment_count(self, entry_id, comment_count):
+    def set_observation_comment_count(self, entry_id, comment_count) -> NoReturn:
         pass
 
-    def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str):
+    def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str) -> NoReturn:
         pass
 
     def get_comment_count(self, entry_id) -> int:
@@ -28,13 +28,13 @@ class ObservationRepository:
     def has_entry(self, entry_id) -> bool:
         pass
 
-    def remove_login_from_observation(self, entry_id, login):
+    def remove_login_from_observation(self, entry_id, login) -> NoReturn:
         pass
 
-    def has_observation_with_login(self, entry_id, login):
+    def has_observation_with_login(self, entry_id, login) -> bool:
         pass
 
-    def mark_as_inactive(self, entry_id):
+    def mark_as_inactive(self, entry_id) -> NoReturn:
         pass
 
 
@@ -86,23 +86,23 @@ class ShelveObservationRepository(ObservationRepository):
 
     def save(self, observation: Observation) -> NoReturn:
         with self.__file_db() as db:
-            db[observation.entry_id] = observation
+            db[observation.entry_id] = to_db_model(observation)
 
     def get_all_actives(self) -> List[Observation]:
         with self.__file_db() as db:
-            return list([observation for observation in db.values() if observation.active])
+            return [to_domain_model(observation) for observation in list(db.values()) if observation['active']]
 
     def set_observation_comment_count(self, entry_id, comment_count):
         with self.__file_db() as db:
-            db[entry_id].comments_count = comment_count
+            db[entry_id]['comments_count'] = comment_count
 
     def add_login_to_observation(self, entry_id, login_with_comment_id: Dict[str, str]):
         with self.__file_db() as db:
-            db[entry_id].logins_with_last_seen_comment_id.update(login_with_comment_id)
+            db[entry_id]['logins_with_last_seen_comment_id'].update(login_with_comment_id)
 
     def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str):
         with self.__file_db() as db:
-            db[entry_id].logins_with_last_seen_comment_id.update({login: last_seen_comment_id})
+            db[entry_id]['logins_with_last_seen_comment_id'].update({login: last_seen_comment_id})
 
     def has_entry(self, entry_id):
         with self.__file_db() as db:
@@ -110,24 +110,36 @@ class ShelveObservationRepository(ObservationRepository):
 
     def get_comment_count(self, entry_id) -> int:
         with self.__file_db() as db:
-            return db[entry_id].comments_count
+            return db[entry_id]['comments_count']
 
     def remove_login_from_observation(self, entry_id, login):
         with self.__file_db() as db:
-            db[entry_id].logins_with_last_seen_comment_id.pop(login)
+            db[entry_id]['logins_with_last_seen_comment_id'].pop(login)
 
     def has_observation_with_login(self, entry_id, login):
         with self.__file_db() as db:
             if entry_id not in db:
                 return False
-            return login in db[entry_id].logins_with_last_seen_comment_id.keys()
+            return login in db[entry_id]['logins_with_last_seen_comment_id'].keys()
 
     def mark_as_inactive(self, entry_id):
         with self.__file_db() as db:
             if entry_id in db:
-                db[entry_id].active = False
+                db[entry_id]['active'] = False
             else:
                 logging.error(f'Try to mark as inactive non-existing observation. Entry id: {entry_id}')
 
     def __file_db(self):
         return shelve.open(self.filename, writeback=True)
+
+
+def to_db_model(observation: Observation) -> Dict[str, any]:
+    return observation.__dict__
+
+
+def to_domain_model(model: Dict[str, any]) -> Observation:
+    logins_with_last_seen_comment_id = model['logins_with_last_seen_comment_id']
+    entry_id = model['entry_id']
+    comment_id = model['comment_id']
+    comments_count = model['comments_count']
+    return Observation(logins_with_last_seen_comment_id, entry_id, comment_id, comments_count)

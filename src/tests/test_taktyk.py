@@ -17,7 +17,7 @@ class TestTaktyk(object):
 
         bot.run()
 
-        assert len(repository.observations) == 4
+        assert len(repository.get_all_actives()) == 4
 
     def test_get_observations_from_more_then_one_user_to_one_entry(self):
         api, bot, login, repository = default_test_context()

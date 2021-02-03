@@ -1,11 +1,15 @@
+import os
 from random import randint
 from typing import Tuple
 
 from wykop import WykopAPI
 
-from taktyk.observation_repository import InMemoryObservationRepository
+from taktyk.observation_repository import InMemoryObservationRepository, ObservationRepository, \
+    ShelveObservationRepository
 from taktyk.taktyk_bot import TaktykBot
 from tests.FakeWykopApi import FakeWykopApi
+
+TEST_DB_FILE = 'test.db'
 
 
 def new_entry_is_added(api, start_comments_count=0, author='test_login') -> str:
@@ -40,9 +44,14 @@ def messages_in_conversation(api, login):
     return len(api.conversation(login))
 
 
-def default_test_context() -> Tuple[FakeWykopApi, TaktykBot, str, InMemoryObservationRepository]:
+def default_test_context(in_memory=True) -> Tuple[FakeWykopApi, TaktykBot, str, ObservationRepository]:
+    if in_memory:
+        repository = InMemoryObservationRepository()
+    else:
+        if os.path.isfile(TEST_DB_FILE):
+            os.remove(TEST_DB_FILE)
+        repository = ShelveObservationRepository(TEST_DB_FILE)
     login = 'login1'
-    repository = InMemoryObservationRepository()
     api = FakeWykopApi()
     bot = TaktykBot(api, repository)
     return api, bot, login, repository
