@@ -2,7 +2,7 @@ import logging
 import shelve
 from typing import NoReturn, List, Dict
 
-from taktyk.model import Observation
+from taktyk.model import Observation, LoginObservation, ObservationMode
 
 
 class ObservationRepository:
@@ -10,7 +10,7 @@ class ObservationRepository:
     def save(self, observation: Observation) -> NoReturn:
         pass
 
-    def add_login_to_observation(self, entry_id, login_with_comment_id: Dict[str, str]) -> NoReturn:
+    def add_login_to_observation(self, entry_id, login_observation: LoginObservation) -> NoReturn:
         pass
 
     def set_observation_comment_count(self, entry_id, comment_count) -> NoReturn:
@@ -52,11 +52,12 @@ class InMemoryObservationRepository(ObservationRepository):
     def set_observation_comment_count(self, entry_id, comment_count):
         self.observations[entry_id].comments_count = comment_count
 
-    def add_login_to_observation(self, entry_id, login_with_comment_id: Dict[str, str]):
-        self.observations[entry_id].logins_with_last_seen_comment_id.update(login_with_comment_id)
+    def add_login_to_observation(self, entry_id, login_observation: LoginObservation):
+        login = login_observation.login
+        self.observations[entry_id].login_observations.update({login: login_observation})
 
     def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str):
-        self.observations[entry_id].logins_with_last_seen_comment_id.update({login: last_seen_comment_id})
+        self.observations[entry_id].login_observations[login].last_seen_comment_id = last_seen_comment_id
 
     def has_entry(self, entry_id):
         return entry_id in self.observations
@@ -65,12 +66,12 @@ class InMemoryObservationRepository(ObservationRepository):
         return self.observations[entry_id].comments_count
 
     def remove_login_from_observation(self, entry_id, login):
-        self.observations[entry_id].logins_with_last_seen_comment_id.pop(login)
+        self.observations[entry_id].login_observations.pop(login)
 
     def has_observation_with_login(self, entry_id, login):
         if not self.has_entry(entry_id):
             return False
-        return login in self.observations[entry_id].logins_with_last_seen_comment_id.keys()
+        return login in self.observations[entry_id].login_observations.keys()
 
     def mark_as_inactive(self, entry_id):
         if self.has_entry(entry_id):
@@ -86,23 +87,26 @@ class ShelveObservationRepository(ObservationRepository):
 
     def save(self, observation: Observation) -> NoReturn:
         with self.__file_db() as db:
-            db[observation.entry_id] = to_db_model(observation)
+            model = to_db_model(observation)
+            db[observation.entry_id] = model
 
     def get_all_actives(self) -> List[Observation]:
         with self.__file_db() as db:
-            return [to_domain_model(observation) for observation in list(db.values()) if observation['active']]
+            observations = list(db.values()).copy()
+            result = [to_domain_model(observation) for observation in observations if observation['active']]
+            return result
 
     def set_observation_comment_count(self, entry_id, comment_count):
         with self.__file_db() as db:
             db[entry_id]['comments_count'] = comment_count
 
-    def add_login_to_observation(self, entry_id, login_with_comment_id: Dict[str, str]):
+    def add_login_to_observation(self, entry_id, login_observation: LoginObservation):
         with self.__file_db() as db:
-            db[entry_id]['logins_with_last_seen_comment_id'].update(login_with_comment_id)
+            db[entry_id]['login_observations'].update({login_observation.login: to_db_model(login_observation)})
 
     def set_last_seen_id_for_login(self, entry_id, login: str, last_seen_comment_id: str):
         with self.__file_db() as db:
-            db[entry_id]['logins_with_last_seen_comment_id'].update({login: last_seen_comment_id})
+            db[entry_id]['login_observations'][login]['last_seen_comment_id'] = last_seen_comment_id
 
     def has_entry(self, entry_id):
         with self.__file_db() as db:
@@ -114,13 +118,13 @@ class ShelveObservationRepository(ObservationRepository):
 
     def remove_login_from_observation(self, entry_id, login):
         with self.__file_db() as db:
-            db[entry_id]['logins_with_last_seen_comment_id'].pop(login)
+            db[entry_id]['login_observations'].pop(login)
 
     def has_observation_with_login(self, entry_id, login):
         with self.__file_db() as db:
             if entry_id not in db:
                 return False
-            return login in db[entry_id]['logins_with_last_seen_comment_id'].keys()
+            return login in db[entry_id]['login_observations'].keys()
 
     def mark_as_inactive(self, entry_id):
         with self.__file_db() as db:
@@ -133,13 +137,32 @@ class ShelveObservationRepository(ObservationRepository):
         return shelve.open(self.filename, writeback=True)
 
 
-def to_db_model(observation: Observation) -> Dict[str, any]:
-    return observation.__dict__
+def to_db_model(x: any) -> Dict[str, any]:
+    if isinstance(x, (Observation, LoginObservation, Dict)):
+        result: Dict = x.__dict__ if not isinstance(x, Dict) else x
+        for k, v in result.items():
+            if isinstance(v, (Observation, LoginObservation, Dict)):
+                result.update({k: to_db_model(v)})
+            if k == 'observation_mode':
+                result.update({k: v.value})
+        return result
+    raise Exception
 
 
 def to_domain_model(model: Dict[str, any]) -> Observation:
-    logins_with_last_seen_comment_id = model['logins_with_last_seen_comment_id']
-    entry_id = model['entry_id']
-    comment_id = model['comment_id']
-    comments_count = model['comments_count']
-    return Observation(logins_with_last_seen_comment_id, entry_id, comment_id, comments_count)
+    observation = empty_observation()
+    observation.__dict__.update(model.copy())
+    observation.login_observations = {}
+    for login, value in model['login_observations'].items():
+        o = create_login_observation(value)
+        observation.login_observations.update({login: o})
+    return observation
+
+
+def empty_observation():
+    return Observation(None, None, None, None)
+
+
+def create_login_observation(value):
+    o = LoginObservation(value['login'], value['last_seen_comment_id'], ObservationMode(int(value['observation_mode'])))
+    return o

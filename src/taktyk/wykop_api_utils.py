@@ -40,12 +40,24 @@ def comment_count_from_entry(entry: Entry) -> int:
     return entry['comments_count']
 
 
+def body_from_comment_with_id(entry: Entry, comment_id) -> str:
+    return next((c['body'] for c in entry['comments'] if c['id'] == comment_id))
+
+
 def last_comment_id_from_entry(entry: Entry) -> str:
     return entry['comments'][-1]['id']
 
 
 def last_author_login_from_entry(entry: Entry) -> str:
     return entry['comments'][-1]['author']['login']
+
+
+def comment_authors_with_comment_id_from_entry(entry: Entry) -> List[Tuple[str, str]]:
+    return [(comment['author']['login'], comment['id']) for comment in entry['comments']]
+
+
+def op_from_entry(entry: Entry) -> str:
+    return entry['author']['login']
 
 
 def is_last_message_received(conversation: Conversation) -> bool:

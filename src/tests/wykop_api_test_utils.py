@@ -23,7 +23,13 @@ def entry_is_removed(api: WykopAPI, entry_id):
 
 
 def user_request_observation(api: FakeWykopApi, entry_id, login, page=1) -> str:
-    comment_id = api.add_comment_to_entry(entry_id)
+    comment_id = api.add_comment_to_entry(entry_id, login)
+    api.add_notification(login, entry_id, comment_id, page)
+    return comment_id
+
+
+def user_request_op_observation(api: FakeWykopApi, entry_id, login, page=1) -> str:
+    comment_id = api.add_comment_to_entry(entry_id, login, body='@taktyk-bot op')
     api.add_notification(login, entry_id, comment_id, page)
     return comment_id
 
@@ -44,7 +50,7 @@ def messages_in_conversation(api, login):
     return len(api.conversation(login))
 
 
-def default_test_context(in_memory=True) -> Tuple[FakeWykopApi, TaktykBot, str, ObservationRepository]:
+def default_test_context(in_memory=False) -> Tuple[FakeWykopApi, TaktykBot, str, ObservationRepository]:
     if in_memory:
         repository = InMemoryObservationRepository()
     else:
