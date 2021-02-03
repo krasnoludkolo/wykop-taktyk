@@ -28,8 +28,8 @@ def user_send_message(api, login, message):
     api.receive_message(login, message)
 
 
-def new_comments_to_entry_are_added(api: FakeWykopApi, entry_id, author='test_login') -> str:
-    return api.add_comment_to_entry(entry_id, author)
+def new_comments_to_entry_are_added(api: FakeWykopApi, entry_id, author='test_login', body='@taktyk-bot .') -> str:
+    return api.add_comment_to_entry(entry_id, author, body)
 
 
 def messages_with(api, login):
