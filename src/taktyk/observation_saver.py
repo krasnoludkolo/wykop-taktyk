@@ -3,10 +3,16 @@ from typing import List
 
 from wykop import WykopAPI
 
-from taktyk.model import ObservationCandidate, Observation
+from taktyk.model import ObservationCandidate, Observation, LoginObservation, ObservationMode
 from taktyk.observation_repository import ObservationRepository
 from taktyk.wykop_api_utils import all_new, is_notification_new, observation_data_from_notification, \
-    comment_count_from_entry, is_notification_comment_directed
+    comment_count_from_entry, is_notification_comment_directed, body_from_comment_with_id
+
+
+def get_mode_from_comment(message) -> ObservationMode:
+    if " op" in message:
+        return ObservationMode.OP
+    return ObservationMode.ALL
 
 
 class ObservationSaver:
@@ -16,20 +22,23 @@ class ObservationSaver:
         self.repo: ObservationRepository = repo
 
     def save_new_observations(self):
-        for login, entry_id, comment_id, comments_count in self.__new_observations():
+        for observation_candidate in self.__new_observations_candidates():
+            login, entry_id, comment_id, comments_count, mode = observation_candidate
             if self.repo.has_entry(entry_id):
-                self.__update_login_observation(comments_count, entry_id, {login: comment_id})
+                login_observation = LoginObservation(login, comment_id, mode)
+                self.__update_login_observation(comments_count, entry_id, login_observation)
             else:
-                self.__save_new_observation(comment_id, comments_count, entry_id, {login: comment_id})
+                self.__save_new_observation(observation_candidate)
         self.api.notification_mark_all_as_read()
 
-    def __new_observations(self) -> List[ObservationCandidate]:
+    def __new_observations_candidates(self) -> List[ObservationCandidate]:
         result = []
         for n in self.__new_notifications():
             entry_id, login, comment_id = observation_data_from_notification(n)
             entry = self.api.entry(entry_id)
             comments_count = comment_count_from_entry(entry)
-            observation = ObservationCandidate(login, entry_id, comment_id, comments_count)
+            mode = get_mode_from_comment(body_from_comment_with_id(entry, comment_id))
+            observation = ObservationCandidate(login, entry_id, comment_id, comments_count, mode)
             result.append(observation)
         return result
 
@@ -44,13 +53,15 @@ class ObservationSaver:
     def __load_next_page(self, page):
         return self.__new_notifications(page + 1)
 
-    def __update_login_observation(self, comments_count, entry_id, login_with_last_seen_comment_id):
-        self.repo.add_login_to_observation(entry_id, login_with_last_seen_comment_id)
+    def __update_login_observation(self, comments_count: int, entry_id: str, login_observation: LoginObservation):
+        self.repo.add_login_to_observation(entry_id, login_observation)
         saved_comments_count = self.repo.get_comment_count(entry_id)
         self.repo.set_observation_comment_count(entry_id, max(saved_comments_count, comments_count))
         logging.info(f'observation update: {entry_id} {max(saved_comments_count, comments_count)}')
 
-    def __save_new_observation(self, comment_id, comments_count, entry_id, login_with_last_seen_comment_id):
-        observation = Observation(login_with_last_seen_comment_id, entry_id, comment_id, comments_count)
+    def __save_new_observation(self, observation_candidate: ObservationCandidate):
+        login, entry_id, comment_id, comments_count, mode = observation_candidate
+        login_observations = {login: LoginObservation(login, comment_id, mode)}
+        observation = Observation(login_observations, entry_id, comment_id, comments_count)
         self.repo.save(observation)
         logging.info(f'new observation: {observation}')

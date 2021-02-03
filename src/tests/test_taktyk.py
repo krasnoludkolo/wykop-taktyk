@@ -30,7 +30,7 @@ class TestTaktyk(object):
 
         assert len(repository.get_all_actives()) == 1
         observation = list(repository.get_all_actives())[0]
-        assert len(observation.logins_with_last_seen_comment_id) == 2
+        assert len(observation.login_observations) == 2
         assert observation.comments_count == 2 * USER_OBSERVATION_REQUEST
 
     def test_should_not_take_read_notification_again(self):
@@ -43,7 +43,7 @@ class TestTaktyk(object):
         bot.run()
 
         assert len(list(repository.get_all_actives())) == 1
-        assert len(list(repository.get_all_actives()[0].logins_with_last_seen_comment_id)) == 1
+        assert len(list(repository.get_all_actives()[0].login_observations)) == 1
 
     def test_should_not_send_message_if_last_message_is_from_observer(self):
         api, bot, login, repository = default_test_context()
