@@ -1,0 +1,9 @@
+O co chodzi z @taktyk-bot ?
+Prosty bot, którego można zwołać w komentarzu do wpisu na mirko i będzie wysyłał PW kiedy pojawi się nowy wpis.
+
+[Kod na githubie](https://github.com/krasnoludkolo/wykop-taktyk) (będę wdzięczny za gwiazdki ( ͡° ͜ʖ ͡°))
+[Lista kolejnych zadań](https://github.com/krasnoludkolo/wykop-taktyk/issues)
+Tag do obserwowania/czarnolistowania:
+#wykoptaktykbot
+
+#wykop #wykopapi #programowanie #python #gruparatowaniapoziomu #webdev
