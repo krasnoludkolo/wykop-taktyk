@@ -40,7 +40,7 @@ class TestTaktykSendMessages(object):
         new_comments_to_entry_are_added(api, entry_id)
         bot.run()
 
-        assert f'https://www.wykop.pl/wpis/{entry_id}#comment-{comment_id}' in api.conversation(login)[0]['body']
+        assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{comment_id}' in api.conversation(login)[0]['body']
 
     def test_send_second_message_with_link_to_last_read_comment(self):
         api, bot, login, repository = default_test_context()
@@ -54,8 +54,8 @@ class TestTaktykSendMessages(object):
         new_comments_to_entry_are_added(api, entry_id)
         bot.run()
 
-        assert f'https://www.wykop.pl/wpis/{entry_id}#comment-{comment_id_1}' in api.conversation(login)[0]['body']
-        assert f'https://www.wykop.pl/wpis/{entry_id}#comment-{comment_id_2}' in api.conversation(login)[1]['body']
+        assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{comment_id_1}' in api.conversation(login)[0]['body']
+        assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{comment_id_2}' in api.conversation(login)[1]['body']
 
     def test_send_correct_comment_id_for_different_users(self):
         api, bot, login, repository = default_test_context()
@@ -69,8 +69,9 @@ class TestTaktykSendMessages(object):
         new_comments_to_entry_are_added(api, entry_id)
         bot.run()
 
-        assert f'https://www.wykop.pl/wpis/{entry_id}#comment-{login_comment_id}' in api.conversation(login)[-1]['body']
-        assert f'https://www.wykop.pl/wpis/{entry_id}#comment-{different_login_comment_id}' in \
+        assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{login_comment_id}' in api.conversation(login)[-1][
+            'body']
+        assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{different_login_comment_id}' in \
                api.conversation(different_login)[-1]['body']
 
     def test_should_ignore_removed_entry(self):
