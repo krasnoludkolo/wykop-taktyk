@@ -16,7 +16,7 @@ class MessageSender:
 
     def send_new_comment_message(self, last_seen_comment_id: str, login: str, entry_id: str) -> None:
         try:
-            message = f'nowy komentarz {entry_url}/{entry_id}#comment-{last_seen_comment_id}'
+            message = f'nowy komentarz {entry_url}/{entry_id}/#comment-{last_seen_comment_id}'
             self.__send_message(login, message)
         except ReceiverHasBlockedDMError:
             logging.info(f'Error during sending message to {login}')
