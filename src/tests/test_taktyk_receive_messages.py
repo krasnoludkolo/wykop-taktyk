@@ -11,7 +11,7 @@ class TestTaktykReceiveMessages(object):
         bot.run()
 
         user_send_message(api, login, f'https://www.wykop.pl/wpis/{entry_id}')
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
         assert len(api.conversation(login)) == USER_MESSAGE + REMOVED_SUMMARY_MESSAGE
@@ -26,7 +26,7 @@ class TestTaktykReceiveMessages(object):
         bot.run()
 
         user_send_message(api, login, f'https://www.wykop.pl/wpis/{entry_id}#comment-195807281')
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
         assert len(api.conversation(login)) == USER_MESSAGE + REMOVED_SUMMARY_MESSAGE
@@ -41,7 +41,7 @@ class TestTaktykReceiveMessages(object):
         bot.run()
 
         user_send_message(api, login, f'{entry_id}')
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
         assert len(api.conversation(login)) == USER_MESSAGE + REMOVED_SUMMARY_MESSAGE
@@ -59,8 +59,8 @@ class TestTaktykReceiveMessages(object):
 
         user_send_message(api, login, f'{entry_id1}')
         user_send_message(api, login, f'{entry_id2}')
-        new_comments_to_entry_are_added(api, entry_id1)
-        new_comments_to_entry_are_added(api, entry_id2)
+        new_comment_to_entry_is_added(api, entry_id1)
+        new_comment_to_entry_is_added(api, entry_id2)
         bot.run()
 
         assert len(api.conversation(login)) == USER_MESSAGE + USER_MESSAGE + REMOVED_SUMMARY_MESSAGE

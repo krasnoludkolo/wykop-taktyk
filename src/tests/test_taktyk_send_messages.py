@@ -10,7 +10,7 @@ class TestTaktykSendMessages(object):
 
         bot.run()
 
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
 
         bot.run()
 
@@ -26,7 +26,7 @@ class TestTaktykSendMessages(object):
         user_request_observation(api, entry_id, login)
         bot.run()
 
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
         assert messages_in_conversation(api, login) == 1
@@ -37,7 +37,7 @@ class TestTaktykSendMessages(object):
         comment_id = user_request_observation(api, entry_id, login)
         bot.run()
 
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
         assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{comment_id}' in api.conversation(login)[0]['body']
@@ -47,11 +47,11 @@ class TestTaktykSendMessages(object):
         entry_id = new_entry_is_added(api)
         comment_id_1 = user_request_observation(api, entry_id, login)
         bot.run()
-        comment_id_2 = new_comments_to_entry_are_added(api, entry_id)
+        comment_id_2 = new_comment_to_entry_is_added(api, entry_id)
 
         bot.run()
 
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
         assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{comment_id_1}' in api.conversation(login)[0]['body']
@@ -66,7 +66,7 @@ class TestTaktykSendMessages(object):
         different_login_comment_id = user_request_observation(api, entry_id, different_login)
         bot.run()
 
-        new_comments_to_entry_are_added(api, entry_id)
+        new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
         assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{login_comment_id}' in api.conversation(login)[-1][
