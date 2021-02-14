@@ -21,3 +21,4 @@ class TaktykBot:
         self.observation_saver.save_new_observations()
         self.observations_remover.remove_observations_from_messages()
         self.observations_sender.send_observations()
+        self.api.notification_mark_all_as_read()

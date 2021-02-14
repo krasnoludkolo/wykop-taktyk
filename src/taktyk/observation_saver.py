@@ -29,7 +29,6 @@ class ObservationSaver:
                 self.__update_login_observation(comments_count, entry_id, login_observation)
             else:
                 self.__save_new_observation(observation_candidate)
-        self.api.notification_mark_all_as_read()
 
     def __new_observations_candidates(self) -> List[ObservationCandidate]:
         result = []
