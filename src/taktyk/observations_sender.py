@@ -1,9 +1,9 @@
-import logging
 from typing import List, NoReturn
 
 from wykop import WykopAPI
 from wykop.api.exceptions import EntryDoesNotExistError
 
+from taktyk.base_logger import logger
 from taktyk.model import Observation, LoginObservation, ObservationMode
 from taktyk.observation_repository import ObservationRepository
 from taktyk.wykop_api_utils import comment_count_from_entry, \
@@ -36,24 +36,31 @@ class ObservationsSender:
         self.message_sender = message_sender
 
     def send_observations(self) -> None:
-        for observation in self.repo.get_all_actives():
+        active_observations = self.repo.get_all_actives()
+        logger.debug(f'Found {len(active_observations)} active entry observations')
+        for observation in active_observations:
             self.process_observation(observation)
 
     def process_observation(self, observation) -> NoReturn:
         entry_id = observation.entry_id
+        logger.debug(f'Processing entry with id: {entry_id}')
         try:
             entry = self.api.entry(entry_id)
         except EntryDoesNotExistError:
-            logging.info(f'Entry with id: {entry_id} no longer exists. Marking observation as inactive')
+            logger.info(f'Entry with id: {entry_id} no longer exists. Marking observation as inactive')
             self.repo.mark_as_inactive(entry_id)
             return
         entry_info = EntryInfo(entry)
 
         if observation.comments_count < entry_info.current_comments_count:
+            logger.debug(f'New comments to entry with id: {entry_id}')
             logins = filter_logins_to_send_message(observation, entry_info)
+            logger.debug(f'Logins to send message: {logins}')
             last_comment_id = entry_info.comments[-1].comment_id
             self.__send_message_to_logins_about_entity(last_comment_id, observation, logins)
             self.repo.set_observation_comment_count(observation.entry_id, entry_info.current_comments_count)
+        else:
+            logger.debug(f'No new comments to entry with id: {entry_id}')
 
     def __send_message_to_logins_about_entity(self, last_comment_id: str, observation: Observation,
                                               logins: List[str]) -> None:
@@ -79,15 +86,18 @@ def should_send_message_to_login(login_observation: LoginObservation, entry_info
         return should_send_message_with_all_observation_mode(entry_info, login_observation)
     if login_observation.observation_mode == ObservationMode.OP:
         return should_send_message_with_op_observation_mode(entry_info, login_observation)
-    return True
+    raise Exception('Unknown ObservationMode')
 
 
 def should_send_message_with_all_observation_mode(entry_info: EntryInfo, login_observation: LoginObservation):
     login = login_observation.login
     if login_is_author_of_last_comment(login, entry_info):
+        logger.debug(f'Should not send message to {login} because it\'s author of last comment')
         return False
     if login_is_mentioned_in_last_comment(login, entry_info):
+        logger.debug(f'Should not send message to {login} because it\'s mentioned in last comment')
         return False
+    logger.debug(f'Should send message to {login}')
     return True
 
 

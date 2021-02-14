@@ -1,7 +1,7 @@
-import logging
 import shelve
 from typing import NoReturn, List, Dict
 
+from taktyk.base_logger import logger
 from taktyk.model import Observation, LoginObservation, ObservationMode
 
 
@@ -77,7 +77,7 @@ class InMemoryObservationRepository(ObservationRepository):
         if self.has_entry(entry_id):
             self.observations[entry_id].active = False
         else:
-            logging.error(f'Try to mark as inactive non-existing observation. Entry id: {entry_id}')
+            logger.error(f'Try to mark as inactive non-existing observation. Entry id: {entry_id}')
 
 
 class ShelveObservationRepository(ObservationRepository):
@@ -131,7 +131,7 @@ class ShelveObservationRepository(ObservationRepository):
             if entry_id in db:
                 db[entry_id]['active'] = False
             else:
-                logging.error(f'Try to mark as inactive non-existing observation. Entry id: {entry_id}')
+                logger.error(f'Try to mark as inactive non-existing observation. Entry id: {entry_id}')
 
     def __file_db(self):
         return shelve.open(self.filename, writeback=True)

@@ -1,9 +1,9 @@
-import logging
 import re
 from typing import Optional
 
 from wykop import WykopAPI
 
+from taktyk.base_logger import logger
 from taktyk.message_sender import MessageSender
 from taktyk.observation_repository import ObservationRepository
 from taktyk.wykop_api_utils import *
@@ -19,11 +19,13 @@ class ObservationsRemover:
     def remove_observations_from_messages(self):
         for conversation_summary in self.api.conversations_list():
             self.__process_conversation(conversation_summary)
+        logger.debug('End of conversations')
 
     def __process_conversation(self, conversation_summary):
         login = get_login_from_conversation_summary(conversation_summary)
         conversation = self.api.conversation(login)
         if has_new_messages(conversation):
+            logger.debug(f'Processing conversation with {login}')
             self.__parse_messages(conversation, login)
 
     def __parse_messages(self, conversation: Conversation, login: str):
@@ -33,12 +35,13 @@ class ObservationsRemover:
             removed_id = self.__remove_observation_from_message(login, message)
             if removed_id:
                 entry_ids_from_removed_observations += removed_id
+        logger.debug(f'Removed ids: {entry_ids_from_removed_observations}')
         self.__send_summary_to_login(entry_ids_from_removed_observations, login)
 
     def __remove_observation_from_message(self, login, message) -> Optional[str]:
         entry_id = self.__take_entry_id_from_message(message)
         if self.repo.has_observation_with_login(entry_id, login):
-            logging.info(f'Removing {login} from {entry_id}')
+            logger.info(f'Removing {login} from {entry_id}')
             self.repo.remove_login_from_observation(entry_id, login)
             return entry_id
         return None

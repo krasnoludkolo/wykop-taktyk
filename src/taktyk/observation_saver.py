@@ -1,8 +1,8 @@
-import logging
 from typing import List
 
 from wykop import WykopAPI
 
+from taktyk.base_logger import logger
 from taktyk.model import ObservationCandidate, Observation, LoginObservation, ObservationMode
 from taktyk.observation_repository import ObservationRepository
 from taktyk.wykop_api_utils import all_new, is_notification_new, observation_data_from_notification, \
@@ -22,8 +22,11 @@ class ObservationSaver:
         self.repo: ObservationRepository = repo
 
     def save_new_observations(self):
-        for observation_candidate in self.__new_observations_candidates():
+        observations_candidates = self.__new_observations_candidates()
+        logger.debug(f'Found {len(observations_candidates)} observations candidates')
+        for observation_candidate in observations_candidates:
             login, entry_id, comment_id, comments_count, mode = observation_candidate
+            logger.debug(f'Processing {login} to {entry_id} entry id')
             if self.repo.has_entry(entry_id):
                 login_observation = LoginObservation(login, comment_id, mode)
                 self.__update_login_observation(comments_count, entry_id, login_observation)
@@ -56,11 +59,11 @@ class ObservationSaver:
         self.repo.add_login_to_observation(entry_id, login_observation)
         saved_comments_count = self.repo.get_comment_count(entry_id)
         self.repo.set_observation_comment_count(entry_id, max(saved_comments_count, comments_count))
-        logging.info(f'observation update: {entry_id} {max(saved_comments_count, comments_count)}')
+        logger.info(f'observation update: {entry_id} {max(saved_comments_count, comments_count)}')
 
     def __save_new_observation(self, observation_candidate: ObservationCandidate):
         login, entry_id, comment_id, comments_count, mode = observation_candidate
         login_observations = {login: LoginObservation(login, comment_id, mode)}
         observation = Observation(login_observations, entry_id, comment_id, comments_count)
         self.repo.save(observation)
-        logging.info(f'new observation: {observation}')
+        logger.info(f'new observation: {observation}')
