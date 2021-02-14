@@ -54,8 +54,8 @@ class TestTaktyk(object):
         user_request_observation(api, entry_id, different_user)
         bot.run()
 
-        new_comments_to_entry_are_added(api, entry_id, different_user)
-        new_comments_to_entry_are_added(api, entry_id, login)
+        new_comment_to_entry_is_added(api, entry_id, different_user)
+        new_comment_to_entry_is_added(api, entry_id, login)
         bot.run()
 
         assert messages_in_conversation(api, login) == NO_MESSAGE

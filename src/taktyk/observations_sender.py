@@ -61,7 +61,8 @@ def filter_logins_to_send_message(observation: Observation, entry_info) -> List[
         login_observation.login
         for login_observation
         in logins
-        if should_send_message_to_login(login_observation, entry_info)]
+        if should_send_message_to_login(login_observation, entry_info)
+    ]
 
 
 def should_send_message_to_login(login_observation: LoginObservation, entry_info: EntryInfo) -> bool:
