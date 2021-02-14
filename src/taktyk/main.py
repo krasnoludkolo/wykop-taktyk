@@ -78,7 +78,7 @@ def create_wykop_api(use_login_and_password: bool) -> WykopAPI:
         api = MultiKeyWykopAPI(keys)
     else:
         login, password = read_login_and_password()
-        api = WykopAPI(WYKOP_APP_KEY)
+        api = WykopAPI(WYKOP_APP_KEY, output='clear')
         api.authenticate(login=login, password=password)
     return api
 
