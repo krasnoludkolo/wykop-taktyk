@@ -71,3 +71,34 @@ class TestTaktyk(object):
         bot.run()
 
         assert messages_in_conversation(api, observer) == NO_MESSAGE
+
+    def test_should_not_send_messages_if_last_comment_contains_observer_mention(self):
+        api, bot, login, repository = default_test_context()
+        observer = 'observer'
+        comment_message_with_observer_mention = f'@{observer} text'
+
+        entry_id = new_entry_is_added(api)
+        user_request_observation(api, entry_id, observer)
+        bot.run()
+
+        new_comment_to_entry_is_added(api, entry_id, body=comment_message_with_observer_mention)
+
+        bot.run()
+
+        assert messages_in_conversation(api, observer) == NO_MESSAGE
+
+    def test_should_send_messages_if_after_comment_contains_observer_mention_next_comment_is_added(self):
+        api, bot, login, repository = default_test_context()
+        observer = 'observer'
+        comment_message_with_observer_mention = f'@{observer} text'
+
+        entry_id = new_entry_is_added(api)
+        user_request_observation(api, entry_id, observer)
+        bot.run()
+
+        new_comment_to_entry_is_added(api, entry_id, body=comment_message_with_observer_mention)
+        new_comment_to_entry_is_added(api, entry_id)
+
+        bot.run()
+
+        assert messages_in_conversation(api, observer) == OBSERVATION_MESSAGE

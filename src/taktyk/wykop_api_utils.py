@@ -44,16 +44,8 @@ def body_from_comment_with_id(entry: Entry, comment_id) -> str:
     return next((c['body'] for c in entry['comments'] if str(c['id']) == str(comment_id)))
 
 
-def last_comment_id_from_entry(entry: Entry) -> str:
-    return entry['comments'][-1]['id']
-
-
-def last_author_login_from_entry(entry: Entry) -> str:
-    return entry['comments'][-1]['author']['login']
-
-
-def comment_authors_with_comment_id_from_entry(entry: Entry) -> List[Tuple[str, str]]:
-    return [(comment['author']['login'], comment['id']) for comment in entry['comments']]
+def comment_infos_from_entry(entry: Entry) -> List[Tuple[str, str, str]]:
+    return [(comment['id'], comment['author']['login'], comment['body']) for comment in entry['comments']]
 
 
 def op_from_entry(entry: Entry) -> str:
