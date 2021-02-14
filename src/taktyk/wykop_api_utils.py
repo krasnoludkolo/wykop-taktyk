@@ -45,7 +45,14 @@ def body_from_comment_with_id(entry: Entry, comment_id) -> str:
 
 
 def comment_infos_from_entry(entry: Entry) -> List[Tuple[str, str, str]]:
-    return [(comment['id'], comment['author']['login'], comment['body']) for comment in entry['comments']]
+    return [parse_comment(comment) for comment in entry['comments']]
+
+
+def parse_comment(comment) -> Tuple[str, str, str]:
+    if 'body' in comment:
+        return comment['id'], comment['author']['login'], comment['body']
+    else:
+        return comment['id'], comment['author']['login'], ''
 
 
 def op_from_entry(entry: Entry) -> str:
