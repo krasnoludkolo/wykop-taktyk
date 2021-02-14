@@ -1,23 +1,31 @@
 import logging
-from typing import Tuple, List, NoReturn
+from typing import List, NoReturn
 
 from wykop import WykopAPI
 from wykop.api.exceptions import EntryDoesNotExistError
 
 from taktyk.model import Observation, LoginObservation, ObservationMode
 from taktyk.observation_repository import ObservationRepository
-from taktyk.wykop_api_utils import comment_count_from_entry, last_comment_id_from_entry, last_author_login_from_entry, \
-    comment_authors_with_comment_id_from_entry, op_from_entry
+from taktyk.wykop_api_utils import comment_count_from_entry, \
+    op_from_entry, comment_infos_from_entry
 
 
 class EntryInfo:
 
     def __init__(self, entry) -> None:
         self.current_comments_count: int = comment_count_from_entry(entry)
-        self.last_comment_id: str = last_comment_id_from_entry(entry)
-        self.last_author_login: str = last_author_login_from_entry(entry)
-        self.comment_authors_with_comment_id: List[Tuple[str, str]] = comment_authors_with_comment_id_from_entry(entry)
         self.op: str = op_from_entry(entry)
+        self.comments: List[CommentInfo] = [CommentInfo(comment_id, author, body)
+                                            for comment_id, author, body
+                                            in comment_infos_from_entry(entry)]
+
+
+class CommentInfo:
+
+    def __init__(self, comment_id: str, author: str, body: str) -> None:
+        self.comment_id: str = comment_id
+        self.author: str = author
+        self.body: str = body
 
 
 class ObservationsSender:
@@ -43,7 +51,8 @@ class ObservationsSender:
 
         if observation.comments_count < entry_info.current_comments_count:
             logins = filter_logins_to_send_message(observation, entry_info)
-            self.__send_message_to_logins_about_entity(entry_info.last_comment_id, observation, logins)
+            last_comment_id = entry_info.comments[-1].comment_id
+            self.__send_message_to_logins_about_entity(last_comment_id, observation, logins)
             self.repo.set_observation_comment_count(observation.entry_id, entry_info.current_comments_count)
 
     def __send_message_to_logins_about_entity(self, last_comment_id: str, observation: Observation,
@@ -66,14 +75,31 @@ def filter_logins_to_send_message(observation: Observation, entry_info) -> List[
 
 
 def should_send_message_to_login(login_observation: LoginObservation, entry_info: EntryInfo) -> bool:
-    if login_observation.login == entry_info.last_author_login:
-        return False
+    if login_observation.observation_mode == ObservationMode.ALL:
+        return should_send_message_with_all_observation_mode(entry_info, login_observation)
     if login_observation.observation_mode == ObservationMode.OP:
         return should_send_message_with_op_observation_mode(entry_info, login_observation)
     return True
 
 
-def should_send_message_with_op_observation_mode(entry_info, login_observation):
+def should_send_message_with_all_observation_mode(entry_info: EntryInfo, login_observation: LoginObservation):
+    login = login_observation.login
+    if login_is_author_of_last_comment(login, entry_info):
+        return False
+    if login_is_mentioned_in_last_comment(login, entry_info):
+        return False
+    return True
+
+
+def login_is_author_of_last_comment(login: str, entry_info: EntryInfo) -> bool:
+    return login == entry_info.comments[-1].author
+
+
+def login_is_mentioned_in_last_comment(login: str, entry_info: EntryInfo) -> bool:
+    return f'@{login}' in entry_info.comments[-1].body
+
+
+def should_send_message_with_op_observation_mode(entry_info: EntryInfo, login_observation: LoginObservation) -> bool:
     comment_id = login_observation.last_seen_comment_id
     op_comment_ids = get_op_comment_ids(entry_info)
     if not op_comment_ids:
@@ -82,8 +108,8 @@ def should_send_message_with_op_observation_mode(entry_info, login_observation):
     return str(comment_id) < str(last_op_comment_id)
 
 
-def get_op_comment_ids(entry_info):
-    return [comment_id
-            for author, comment_id
-            in entry_info.comment_authors_with_comment_id
-            if author == entry_info.op]
+def get_op_comment_ids(entry_info: EntryInfo) -> List[str]:
+    return [comment.comment_id
+            for comment
+            in entry_info.comments
+            if comment.author == entry_info.op]
