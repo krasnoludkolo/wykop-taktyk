@@ -60,3 +60,16 @@ class TestTaktyk(object):
 
         assert messages_in_conversation(api, login) == NO_MESSAGE
         assert messages_in_conversation(api, different_user) == OBSERVATION_MESSAGE
+
+    def test_should_send_message_after_different_login_comment_and_request_notification(self):
+        api, bot, login, repository = default_test_context()
+        different_user = 'different_user'
+
+        entry_id = new_entry_is_added(api)
+        user_request_observation(api, entry_id, login)
+        bot.run()
+        new_comment_to_entry_is_added(api, entry_id, different_user)
+        user_request_observation(api, entry_id, different_user)
+        bot.run()
+
+        assert messages_in_conversation(api, login) == OBSERVATION_MESSAGE

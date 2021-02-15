@@ -58,7 +58,6 @@ class ObservationSaver:
     def __update_login_observation(self, comments_count: int, entry_id: str, login_observation: LoginObservation):
         self.repo.add_login_to_observation(entry_id, login_observation)
         saved_comments_count = self.repo.get_comment_count(entry_id)
-        self.repo.set_observation_comment_count(entry_id, max(saved_comments_count, comments_count))
         logger.info(f'observation update: {entry_id} {max(saved_comments_count, comments_count)}')
 
     def __save_new_observation(self, observation_candidate: ObservationCandidate):
