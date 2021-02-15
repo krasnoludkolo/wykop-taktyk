@@ -69,7 +69,7 @@ class TestTaktykSendMessages(object):
         new_comment_to_entry_is_added(api, entry_id)
         bot.run()
 
-        assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{login_comment_id}' in api.conversation(login)[-1][
+        assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{login_comment_id}' in api.conversation(login)[0][
             'body']
         assert f'https://www.wykop.pl/wpis/{entry_id}/#comment-{different_login_comment_id}' in \
                api.conversation(different_login)[-1]['body']

@@ -6,7 +6,10 @@ from taktyk.base_logger import logger
 from taktyk.model import ObservationCandidate, Observation, LoginObservation, ObservationMode
 from taktyk.observation_repository import ObservationRepository
 from taktyk.wykop_api_utils import all_new, is_notification_new, observation_data_from_notification, \
-    comment_count_from_entry, is_notification_comment_directed, body_from_comment_with_id
+    is_notification_comment_directed, body_from_comment_with_id, \
+    observation_request_comment_index
+
+INDEX_OFFSET = 1
 
 
 def get_mode_from_comment(message) -> ObservationMode:
@@ -38,9 +41,9 @@ class ObservationSaver:
         for n in self.__new_notifications():
             entry_id, login, comment_id = observation_data_from_notification(n)
             entry = self.api.entry(entry_id)
-            comments_count = comment_count_from_entry(entry)
+            comments_count_at_observation_moment = observation_request_comment_index(entry, comment_id) + INDEX_OFFSET
             mode = get_mode_from_comment(body_from_comment_with_id(entry, comment_id))
-            observation = ObservationCandidate(login, entry_id, comment_id, comments_count, mode)
+            observation = ObservationCandidate(login, entry_id, comment_id, comments_count_at_observation_moment, mode)
             result.append(observation)
         return result
 

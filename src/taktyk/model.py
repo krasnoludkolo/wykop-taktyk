@@ -44,13 +44,13 @@ class Observation:
 @auto_repr
 class ObservationCandidate:
 
-    def __init__(self, login: str, entry_id: str, comment_id: str, comments_count: int,
+    def __init__(self, login: str, entry_id: str, comment_id: str, comments_count_at_observation_moment: int,
                  observation_mode: ObservationMode = ObservationMode.ALL) -> None:
         self.login: str = login
         self.comment_id: str = str(comment_id)
         self.entry_id: str = str(entry_id)
         self.comment_id: str = str(comment_id)
-        self.comments_count: int = comments_count
+        self.comments_count: int = comments_count_at_observation_moment
         self.observation_mode: ObservationMode = observation_mode
 
     def __iter__(self):
