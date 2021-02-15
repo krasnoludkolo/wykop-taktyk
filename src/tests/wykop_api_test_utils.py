@@ -38,7 +38,7 @@ def user_send_message(api, login, message):
     api.receive_message(login, message)
 
 
-def new_comment_to_entry_is_added(api: FakeWykopApi, entry_id, author='test_login', body='@taktyk-bot .') -> int:
+def new_comment_to_entry_is_added(api: FakeWykopApi, entry_id, author='test_login', body='blabla') -> int:
     return api.add_comment_to_entry(entry_id, author, body)
 
 
