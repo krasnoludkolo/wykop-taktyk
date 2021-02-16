@@ -71,7 +71,7 @@ class ObservationsSender:
             self.repo.set_last_seen_id_for_login(entry_id, login, last_comment_id)
 
 
-def filter_logins_to_send_message(observation: Observation, entry_info) -> List[str]:
+def filter_logins_to_send_message(observation: Observation, entry_info: EntryInfo) -> List[str]:
     logins = observation.login_observations.values()
     return [
         login_observation.login
@@ -96,6 +96,9 @@ def should_send_message_with_all_observation_mode(entry_info: EntryInfo, login_o
         return False
     if login_is_mentioned_in_last_comment(login, entry_info):
         logger.debug(f'Should not send message to {login} because it\'s mentioned in last comment')
+        return False
+    if new_messages_are_only_observation_requests(login_observation, entry_info):
+        logger.debug(f'Should not send message to {login} because new messages are observation requests')
         return False
     logger.debug(f'Should send message to {login}')
     return True
@@ -123,3 +126,23 @@ def get_op_comment_ids(entry_info: EntryInfo) -> List[str]:
             for comment
             in entry_info.comments
             if comment.author == entry_info.op]
+
+
+def new_messages_are_only_observation_requests(login_observation: LoginObservation, entry_info: EntryInfo) -> bool:
+    new_comments = [c for c in entry_info.comments if str(c.comment_id) > str(login_observation.last_seen_comment_id)]
+    for comment in new_comments:
+        if bot_is_not_mentioned(comment.body) or comment_is_to_long(comment.body):
+            return False
+    return True
+
+
+def bot_is_not_mentioned(comment_body: str) -> bool:
+    return BOT_MENTION not in comment_body.lower()
+
+
+def comment_is_to_long(comment_body: str):
+    return len(comment_body) > len(BOT_MENTION) + COMMENT_THRESHOLD
+
+
+BOT_MENTION = '@taktyk-bot'
+COMMENT_THRESHOLD = 4
