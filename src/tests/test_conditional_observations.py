@@ -102,3 +102,32 @@ class TestTaktyk(object):
         bot.run()
 
         assert messages_in_conversation(api, observer) == OBSERVATION_MESSAGE
+
+    def test_not_should_send_messages_if_comment_contains_only_observation_request(self):
+        api, bot, login, repository = default_test_context()
+        different_login = 'different_login'
+
+        entry_id = new_entry_is_added(api)
+        user_request_observation(api, entry_id, login)
+        bot.run()
+
+        user_request_observation(api, entry_id, different_login)
+
+        bot.run()
+
+        assert messages_in_conversation(api, login) == NO_MESSAGE
+
+    def test_should_send_messages_if_comment_contains_only_observation_request_and_there_is_normal_comment(self):
+        api, bot, login, repository = default_test_context()
+        different_login = 'different_login'
+
+        entry_id = new_entry_is_added(api)
+        user_request_observation(api, entry_id, login)
+        bot.run()
+
+        new_comment_to_entry_is_added(api, entry_id, different_login)
+        user_request_observation(api, entry_id, different_login)
+
+        bot.run()
+
+        assert messages_in_conversation(api, login) == OBSERVATION_MESSAGE

@@ -58,7 +58,7 @@ class TestTaktyk(object):
         new_comment_to_entry_is_added(api, entry_id, login)
         bot.run()
 
-        assert messages_in_conversation(api, login) == OBSERVATION_MESSAGE  # TODO set to NO_MESSAGE after #5
+        assert messages_in_conversation(api, login) == NO_MESSAGE
         assert messages_in_conversation(api, different_user) == OBSERVATION_MESSAGE
 
     def test_should_send_message_after_different_login_comment_and_request_notification(self):
