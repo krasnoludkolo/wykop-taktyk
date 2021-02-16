@@ -37,7 +37,7 @@ def observation_data_from_notification(n: Notification) -> Tuple[str, str, str]:
 
 
 def observation_request_comment_index(entry: Entry, comment_id: str) -> int:
-    return [c['id'] for c in entry['comments']].index(comment_id)
+    return [str(c['id']) for c in entry['comments']].index(comment_id)
 
 
 def comment_count_from_entry(entry: Entry) -> int:
