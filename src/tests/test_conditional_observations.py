@@ -99,7 +99,7 @@ class TestTaktyk(object):
         new_comment_to_entry_is_added(api, entry_id, body=comment_message_with_observer_mention)
         new_comment_to_entry_is_added(api, entry_id)
 
-        bot.run()
+        # bot.run()
 
         assert messages_in_conversation(api, observer) == OBSERVATION_MESSAGE
 
