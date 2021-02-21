@@ -12,8 +12,8 @@ from tests.FakeWykopApi import FakeWykopApi
 TEST_DB_FILE = 'test.db'
 
 
-def new_entry_is_added(api, start_comments_count=0, author='test_login') -> int:
-    entry_id = randint(100000, 900000)
+def new_entry_is_added(api, start_comments_count=0, author='test_login') -> str:
+    entry_id = str(randint(100000, 900000))
     api.add_entry(entry_id, start_comments_count, author)
     return entry_id
 
@@ -22,13 +22,13 @@ def entry_is_removed(api: WykopAPI, entry_id):
     api.entry_delete(entry_id)
 
 
-def user_request_observation(api: FakeWykopApi, entry_id, login, page=1) -> int:
+def user_request_observation(api: FakeWykopApi, entry_id, login, page=1) -> str:
     comment_id = api.add_comment_to_entry(entry_id, login)
     api.add_notification(login, entry_id, comment_id, page)
     return comment_id
 
 
-def user_request_op_observation(api: FakeWykopApi, entry_id, login, page=1) -> int:
+def user_request_op_observation(api: FakeWykopApi, entry_id, login, page=1) -> str:
     comment_id = api.add_comment_to_entry(entry_id, login, body='@taktyk-bot op')
     api.add_notification(login, entry_id, comment_id, page)
     return comment_id
@@ -38,7 +38,7 @@ def user_send_message(api, login, message):
     api.receive_message(login, message)
 
 
-def new_comment_to_entry_is_added(api: FakeWykopApi, entry_id, author='test_login', body='blabla') -> int:
+def new_comment_to_entry_is_added(api: FakeWykopApi, entry_id, author='test_login', body='blabla') -> str:
     return api.add_comment_to_entry(entry_id, author, body)
 
 
