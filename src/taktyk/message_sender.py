@@ -15,7 +15,8 @@ class MessageSender:
 
     def send_new_comment_message(self, last_seen_comment_id: str, login: str, entry_id: str) -> None:
         try:
-            message = f'nowy komentarz {entry_url}/{entry_id}/#comment-{last_seen_comment_id}'
+            # TODO https://github.com/krasnoludkolo/wykop-taktyk/issues/51
+            message = f'nowy komentarz {entry_url}/{entry_id}/#comment-{last_seen_comment_id}\nAby przestać obserowować ten wpis napisz mi wiadomość o treści: {entry_id}'
             self.__send_message(login, message)
         except ReceiverHasBlockedDMError:
             logger.info(f'Error during sending message to {login}')
