@@ -6,4 +6,5 @@ BASE_DIR = os.getcwd()
 LOG_DIR = f'{BASE_DIR}/logs'
 REPOSITORY_DIR = f'{BASE_DIR}/db'
 LOG_FILE = f'{LOG_DIR}/wykop-taktyk.log'
+ERROR_LOG_FILE = f'{LOG_DIR}/wykop-taktyk-errors.log'
 REPOSITORY_FILE = f'{REPOSITORY_DIR}/observations.db'
