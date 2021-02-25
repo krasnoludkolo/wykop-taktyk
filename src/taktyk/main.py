@@ -44,7 +44,7 @@ def main() -> NoReturn:
         try:
             main_loop(bot)
         except Exception as e:
-            logger.error(f'Error during main_loop: {e}')
+            logger.error(f'Error during main_loop: {e}', exc_info=True)
         time.sleep(interval)
 
 
