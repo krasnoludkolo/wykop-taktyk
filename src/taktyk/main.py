@@ -14,9 +14,9 @@ from taktyk.taktyk_bot import TaktykBot
 
 
 def main_loop(bot: TaktykBot):
-    logger.info('start main loop')
+    logger.debug('start main loop')
     bot.run()
-    logger.info('end main loop')
+    logger.debug('end main loop')
 
 
 def create_dirs():
