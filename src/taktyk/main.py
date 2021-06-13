@@ -7,6 +7,7 @@ from typing import NoReturn, Tuple, List
 
 from wykop import WykopAPI, MultiKeyWykopAPI, WykopAPIError
 
+from taktyk.ApiClientWrapper import ApiClientWrapper
 from taktyk.base_logger import logger, add_console_logger, add_file_logger, add_error_file_logger
 from taktyk.config import *
 from taktyk.observation_repository import ShelveObservationRepository
@@ -83,7 +84,7 @@ def create_wykop_api(use_login_and_password: bool) -> WykopAPI:
         api = MultiKeyWykopAPI(keys)
     else:
         login, password = read_login_and_password()
-        api = WykopAPI(WYKOP_APP_KEY, output='clear')
+        api = ApiClientWrapper(WYKOP_APP_KEY, output='clear')
         api.authenticate(login=login, password=password)
     return api
 
