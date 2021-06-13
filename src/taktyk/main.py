@@ -5,7 +5,7 @@ import time
 from argparse import ArgumentParser
 from typing import NoReturn, Tuple, List
 
-from wykop import WykopAPI, MultiKeyWykopAPI
+from wykop import WykopAPI, MultiKeyWykopAPI, WykopAPIError
 
 from taktyk.base_logger import logger, add_console_logger, add_file_logger, add_error_file_logger
 from taktyk.config import *
@@ -43,8 +43,11 @@ def main() -> NoReturn:
     while True:
         try:
             main_loop(bot)
+        except WykopAPIError as e:
+            logger.error(f'Wykop API error during main_loop: {type(e)}')
         except Exception as e:
             logger.error(f'Error during main_loop: {e}', exc_info=True)
+            bot.api = create_wykop_api(use_login_and_password)
         time.sleep(interval)
 
 
@@ -74,6 +77,7 @@ def read_login_and_password() -> Tuple[str, str]:
 
 
 def create_wykop_api(use_login_and_password: bool) -> WykopAPI:
+    logger.debug(f'creating WykopAPI. use_login_and_password={use_login_and_password}')
     if os.path.isfile(KEYS_FILE_NAME) and not use_login_and_password:
         keys = read_keys_from_file()
         api = MultiKeyWykopAPI(keys)

@@ -2,6 +2,7 @@ import re
 from typing import Optional
 
 from wykop import WykopAPI
+from wykop.api.exceptions import ReceiverProbablyDoesNotExist
 
 from taktyk.base_logger import logger
 from taktyk.message_sender import MessageSender
@@ -23,10 +24,13 @@ class ObservationsRemover:
 
     def __process_conversation(self, conversation_summary):
         login = get_login_from_conversation_summary(conversation_summary)
-        conversation = self.api.conversation(login)
-        if has_new_messages(conversation):
-            logger.debug(f'Processing conversation with {login}')
-            self.__parse_messages(conversation, login)
+        try:
+            conversation = self.api.conversation(login)
+            if has_new_messages(conversation):
+                logger.debug(f'Processing conversation with {login}')
+                self.__parse_messages(conversation, login)
+        except ReceiverProbablyDoesNotExist:
+            return
 
     def __parse_messages(self, conversation: Conversation, login: str):
         new_messages = take_new_messages(conversation)
