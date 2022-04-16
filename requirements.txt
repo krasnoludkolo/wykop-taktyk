@@ -1,3 +1,4 @@
 wykop-sdk-reborn>=0.8.2
-pillow~=8.0.1
-pytest==6.2.1
+pillow==9.1.0
+pytest==7.1.1
+requests==2.27.1

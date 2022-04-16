@@ -32,10 +32,10 @@ def create_dirs():
 
 
 def main() -> NoReturn:
-    use_login_and_password, interval = load_program_args(create_argument_parser())
+    use_login_and_password, interval, console_logging_level = load_program_args(create_argument_parser())
     logger.debug('Program arguments loaded and parsed')
     create_dirs()
-    add_console_logger(logging.INFO)
+    add_console_logger(console_logging_level)
     add_file_logger(LOG_FILE, logging.DEBUG)
     add_error_file_logger(ERROR_LOG_FILE)
     api = create_wykop_api(use_login_and_password)
@@ -58,12 +58,18 @@ def create_argument_parser() -> ArgumentParser:
                         help="Force to use login and password authenticate")
     parser.add_argument("-i", default=15, dest='interval', type=float,
                         help="Update interval in s")
+    parser.add_argument('-d', action='store_true', help='Set DEBUG logging level for console output')
+
     return parser
 
 
-def load_program_args(parser: ArgumentParser) -> Tuple[bool, float]:
+def load_program_args(parser: ArgumentParser) -> Tuple[bool, float, int]:
     args = parser.parse_args()
-    return args.use_login_and_password, args.interval
+    if args.d:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    return args.use_login_and_password, args.interval, level
 
 
 def read_keys_from_file() -> List[List[str]]:
