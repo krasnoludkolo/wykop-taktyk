@@ -1,7 +1,7 @@
 import time
 from functools import wraps
 
-from wykop import WykopAPI
+from wykop import WykopAPI, WykopAPIError
 from taktyk.base_logger import logger
 
 errors_dict = {}
@@ -19,7 +19,7 @@ def repeat(fn):
                     logger.info(f"Recover with {fn}")
                     logger.info(f"errors_count: {sum(errors_dict.values())} | Errors dict: {errors_dict}")
                 return result
-            except Exception as ex:
+            except WykopAPIError as ex:
                 logger.info(f"Error during {fn}: {ex}")
                 key = ex.args[1]
                 if key in errors_dict:
@@ -28,7 +28,7 @@ def repeat(fn):
                     errors_dict[key] = 1
                 n = n + 1
                 e = ex
-                time.sleep(0.1 + n)
+                time.sleep(1)
                 pass
         raise e
 
